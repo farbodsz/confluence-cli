@@ -1,0 +1,10 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "confluence-cli:lib"
+
+    - path: "./app/Main.hs"
+      component: "confluence-cli:exe:confluence"
+
+    - path: "./app/Paths_confluence_cli.hs"
+      component: "confluence-cli:exe:confluence"
