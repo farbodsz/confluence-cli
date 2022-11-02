@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           confluence-cli
-version:        0.1.0.0
+version:        0.1.0
 synopsis:       Command line interface for Atlassian Confluence.
 description:    Please see the README on GitHub at <https://github.com/farbodsz/confluence-cli#readme>
 category:       CLI
@@ -26,6 +26,7 @@ source-repository head
 
 library
   exposed-modules:
+      Confluence.API
       Confluence.CLI
   other-modules:
       Paths_confluence_cli
@@ -40,6 +41,7 @@ library
     , bytestring
     , http-client
     , http-conduit
+    , optparse-applicative
     , text
   default-language: Haskell2010
 
@@ -59,5 +61,6 @@ executable confluence
     , confluence-cli
     , http-client
     , http-conduit
+    , optparse-applicative
     , text
   default-language: Haskell2010

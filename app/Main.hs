@@ -1,6 +1,19 @@
-module Main (main) where
+--------------------------------------------------------------------------------
 
-import   Confluence.CLI
+module Main where
+
+import Confluence.API (testApi)
+import Confluence.CLI
+import Options.Applicative (execParser)
+
+--------------------------------------------------------------------------------
 
 main :: IO ()
-main = someFunc
+main = do
+    cmd <- execParser cliArgs
+    runCli cmd
+
+runCli :: CliCommand -> IO ()
+runCli CmdApi = putStrLn "API command called" >> testApi
+
+--------------------------------------------------------------------------------

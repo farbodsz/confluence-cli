@@ -1,5 +1,5 @@
 name: confluence-cli
-version: 0.1.0.0
+version: 0.1.0
 synopsis: Command line interface for Atlassian Confluence.
 category: CLI
 description: Please see the README on GitHub at <https://github.com/farbodsz/confluence-cli#readme>
@@ -16,6 +16,7 @@ dependencies:
   - bytestring
   - http-client
   - http-conduit
+  - optparse-applicative
   - text
 
 default-extensions:

@@ -1,7 +1,7 @@
 indentation: 4
 function-arrows: trailing
 comma-style: leading
-import-export-style: diff-friendly
+import-export-style: leading
 indent-wheres: true
 record-brace-space: true
 newlines-between-decls: 1
