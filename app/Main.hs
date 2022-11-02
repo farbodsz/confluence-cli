@@ -2,9 +2,9 @@
 
 module Main where
 
-import Confluence.API (testApi)
-import Confluence.CLI
-import Options.Applicative (execParser)
+import           Confluence.API                 ( testApi )
+import           Confluence.CLI
+import           Options.Applicative            ( execParser )
 
 --------------------------------------------------------------------------------
 

@@ -2,13 +2,12 @@
 
 module Confluence.API where
 
-import qualified Data.ByteString.Lazy.Char8 as L8
-import Network.HTTP.Simple
-    ( getResponseBody
-    , getResponseHeader
-    , getResponseStatusCode
-    , httpLBS
-    )
+import qualified Data.ByteString.Lazy.Char8    as L8
+import           Network.HTTP.Simple            ( getResponseBody
+                                                , getResponseHeader
+                                                , getResponseStatusCode
+                                                , httpLBS
+                                                )
 
 --------------------------------------------------------------------------------
 
