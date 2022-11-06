@@ -28,17 +28,21 @@ library
   exposed-modules:
       Confluence.API
       Confluence.CLI
+      Confluence.Config
   other-modules:
       Paths_confluence_cli
   hs-source-dirs:
       src
   default-extensions:
       OverloadedStrings
+      RecordWildCards
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       aeson
     , base >=4.7 && <5
     , bytestring
+    , directory
+    , filepath
     , http-client
     , http-conduit
     , optparse-applicative
@@ -53,12 +57,15 @@ executable confluence
       app
   default-extensions:
       OverloadedStrings
+      RecordWildCards
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base >=4.7 && <5
     , bytestring
     , confluence-cli
+    , directory
+    , filepath
     , http-client
     , http-conduit
     , optparse-applicative
