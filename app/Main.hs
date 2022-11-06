@@ -14,6 +14,6 @@ main = do
     runCli cmd
 
 runCli :: CliCommand -> IO ()
-runCli CmdApi = putStrLn "API command called" >> testApi
+runCli ApiCommand    = testApi
 
 --------------------------------------------------------------------------------
