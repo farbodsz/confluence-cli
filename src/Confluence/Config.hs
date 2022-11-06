@@ -50,7 +50,7 @@ data ConfigLoadError
     = NoConfigFoundErr FilePath
     -- ^ Couldn't find config file: path searched for config file
     | InvalidConfigErr T.Text
-    -- ^ Unable to parse config file: file contents
+    -- ^ Error in parsing to JSON format: file contents
     deriving Show
 
 -- | Returns the configuration file, or an error if unable to load.

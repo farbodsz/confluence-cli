@@ -20,7 +20,7 @@ main = do
             NoConfigFoundErr path ->
                 putStrLn $ "Config file does not exist: " ++ path
             InvalidConfigErr contents ->
-                T.putStrLn $ "Unable to parse config: \n" <> contents
+                T.putStrLn $ "Invalid config file:\n" <> contents
         Right config -> runCli cmd config
 
 runCli :: CliCommand -> Config -> IO ()
