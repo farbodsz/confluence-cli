@@ -14,6 +14,9 @@ dependencies:
   - base >= 4.7 && < 5
   - aeson
   - bytestring
+  - directory
+  - extra
+  - filepath
   - http-client
   - http-conduit
   - optparse-applicative
@@ -21,6 +24,7 @@ dependencies:
 
 default-extensions:
   - OverloadedStrings
+  - RecordWildCards
 
 ghc-options:
   - -Wall

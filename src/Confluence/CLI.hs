@@ -1,6 +1,9 @@
 --------------------------------------------------------------------------------
 
-module Confluence.CLI where
+module Confluence.CLI
+    ( cliArgs
+    , CliCommand(..)
+    ) where
 
 import           Data.Version                   ( showVersion )
 import           Options.Applicative
@@ -8,11 +11,13 @@ import           Paths_confluence_cli           ( version )
 
 --------------------------------------------------------------------------------
 
-data CliCommand = CmdApi
+data CliCommand = ApiCommand
     deriving Eq
 
+--------------------------------------------------------------------------------
+
 cliArgs :: ParserInfo CliCommand
-cliArgs = info (pCommand <**> helper) (cliHeader <> fullDesc)
+cliArgs = info (commandP <**> helper) (cliHeader <> fullDesc)
 
 cliHeader :: InfoMod CliCommand
 cliHeader = header $ "Confluence CLI v" ++ cliVersion
@@ -20,11 +25,13 @@ cliHeader = header $ "Confluence CLI v" ++ cliVersion
 cliVersion :: String
 cliVersion = showVersion version
 
-pCommand :: Parser CliCommand
-pCommand = hsubparser
-    $ command "api" (info pCmdApi $ progDesc "Access the API endpoints")
+--------------------------------------------------------------------------------
 
-pCmdApi :: Parser CliCommand
-pCmdApi = pure CmdApi
+commandP :: Parser CliCommand
+commandP = hsubparser
+    $ command "api" (info apiCmdP $ progDesc "Access the API endpoints")
+
+apiCmdP :: Parser CliCommand
+apiCmdP = pure ApiCommand
 
 --------------------------------------------------------------------------------
