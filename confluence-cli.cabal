@@ -42,6 +42,7 @@ library
     , base >=4.7 && <5
     , bytestring
     , directory
+    , extra
     , filepath
     , http-client
     , http-conduit
@@ -65,6 +66,7 @@ executable confluence
     , bytestring
     , confluence-cli
     , directory
+    , extra
     , filepath
     , http-client
     , http-conduit

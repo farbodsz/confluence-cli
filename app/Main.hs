@@ -4,16 +4,26 @@ module Main where
 
 import           Confluence.API                 ( testApi )
 import           Confluence.CLI
+import           Confluence.Config
+import qualified Data.Text.IO                  as T
 import           Options.Applicative            ( execParser )
 
 --------------------------------------------------------------------------------
 
 main :: IO ()
 main = do
-    cmd <- execParser cliArgs
-    runCli cmd
+    cmd      <- execParser cliArgs
+    e_config <- loadConfig
 
-runCli :: CliCommand -> IO ()
-runCli ApiCommand    = testApi
+    case e_config of
+        Left config_err -> case config_err of
+            NoConfigFoundErr path ->
+                putStrLn $ "Config file does not exist: " ++ path
+            InvalidConfigErr contents ->
+                T.putStrLn $ "Unable to parse config: \n" <> contents
+        Right config -> runCli cmd config
+
+runCli :: CliCommand -> Config -> IO ()
+runCli ApiCommand = testApi
 
 --------------------------------------------------------------------------------

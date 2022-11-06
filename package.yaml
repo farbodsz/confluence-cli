@@ -15,6 +15,7 @@ dependencies:
   - aeson
   - bytestring
   - directory
+  - extra
   - filepath
   - http-client
   - http-conduit

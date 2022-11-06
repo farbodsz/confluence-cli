@@ -2,7 +2,7 @@
 
 module Confluence.API where
 
-import           Confluence.Config              ( loadConfig )
+import           Confluence.Config              ( Config )
 import qualified Data.ByteString.Lazy.Char8    as L8
 import           Network.HTTP.Simple            ( getResponseBody
                                                 , getResponseHeader
@@ -12,9 +12,8 @@ import           Network.HTTP.Simple            ( getResponseBody
 
 --------------------------------------------------------------------------------
 
-testApi :: IO ()
-testApi = do
-    cfg <- loadConfig
+testApi :: Config -> IO ()
+testApi cfg = do
     print cfg
 
     response <- httpLBS "http://httpbin.org/get"
