@@ -1,37 +1,31 @@
 --------------------------------------------------------------------------------
 
 module Confluence.CLI
-    ( cliArgs
-    , CliCommand(..)
+    ( getSpaces
     ) where
 
-import           Data.Version                   ( showVersion )
-import           Options.Applicative
-import           Paths_confluence_cli           ( version )
+import qualified Confluence.API                as API
+import           Confluence.Config              ( Config )
+import           Confluence.Error               ( ResponseError
+                                                , errorMsg
+                                                )
+import           Confluence.Monad               ( runConfluence )
+import           Confluence.Types
+import           Control.Monad                  ( forM_ )
+import qualified Data.Text.IO                  as T
 
 --------------------------------------------------------------------------------
 
-data CliCommand = ApiCommand
-    deriving Eq
+handleCli :: (a -> IO ()) -> Either ResponseError a -> IO ()
+handleCli = either (T.putStrLn . errorMsg)
 
 --------------------------------------------------------------------------------
 
-cliArgs :: ParserInfo CliCommand
-cliArgs = info (commandP <**> helper) (cliHeader <> fullDesc)
+getSpaces :: Config -> IO ()
+getSpaces cfg = runConfluence cfg API.getSpaces >>= handleCli printSpaces
 
-cliHeader :: InfoMod CliCommand
-cliHeader = header $ "Confluence CLI v" ++ cliVersion
-
-cliVersion :: String
-cliVersion = showVersion version
-
---------------------------------------------------------------------------------
-
-commandP :: Parser CliCommand
-commandP = hsubparser
-    $ command "api" (info apiCmdP $ progDesc "Access the API endpoints")
-
-apiCmdP :: Parser CliCommand
-apiCmdP = pure ApiCommand
+printSpaces :: SpaceArray -> IO ()
+printSpaces arr = forM_ (sparrResults arr)
+    $ \space -> T.putStrLn (spName space <> "  (" <> spKey space <> ")")
 
 --------------------------------------------------------------------------------

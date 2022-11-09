@@ -2,8 +2,8 @@
 
 module Main where
 
-import           Confluence.API                 ( testApi )
-import           Confluence.CLI
+import qualified Confluence.CLI                as CLI
+import           Confluence.Commands
 import           Confluence.Config
 import qualified Data.Text.IO                  as T
 import           Options.Applicative            ( execParser )
@@ -24,6 +24,6 @@ main = do
         Right config -> runCli cmd config
 
 runCli :: CliCommand -> Config -> IO ()
-runCli ApiCommand = testApi
+runCli SpacesCommand = CLI.getSpaces
 
 --------------------------------------------------------------------------------

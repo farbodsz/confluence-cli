@@ -1,12 +1,15 @@
 --------------------------------------------------------------------------------
 
 module Confluence.API.Request
-    ( handleApi
-    , ResponseError(..)
+    ( queryApi
     ) where
 
 import           Confluence.Config              ( Config(..) )
-import           Control.Monad.IO.Class         ( MonadIO )
+import           Confluence.Error               ( ResponseError(..) )
+import           Confluence.Monad               ( ConfluenceM )
+import           Control.Monad.Except           ( liftEither )
+import           Control.Monad.IO.Class         ( MonadIO(liftIO) )
+import           Control.Monad.Reader           ( MonadReader(ask) )
 import           Data.Aeson                     ( FromJSON
                                                 , decode
                                                 )
@@ -51,25 +54,15 @@ mkRequest cfg path query =
 --------------------------------------------------------------------------------
 -- Response
 
-data ResponseError
-    = HttpError Int
-    | ResponseDecodeError
-    deriving (Eq, Show)
-
 parseResponse :: FromJSON a => Response LB.ByteString -> Either ResponseError a
 parseResponse resp = case getResponseStatusCode resp of
     200  -> maybeToEither ResponseDecodeError . decode . getResponseBody $ resp
     code -> Left $ HttpError code
 
---------------------------------------------------------------------------------
--- Helper handler function
-
-handleApi
-    :: (MonadIO m, FromJSON a)
-    => Config
-    -> Endpoint
-    -> Query
-    -> m (Either ResponseError a)
-handleApi cfg path query = parseResponse <$> httpLBS (mkRequest cfg path query)
+queryApi :: FromJSON a => Endpoint -> Query -> ConfluenceM a
+queryApi path query = do
+    cfg  <- ask
+    resp <- liftIO $ httpLBS (mkRequest cfg path query)
+    liftEither $ parseResponse resp
 
 --------------------------------------------------------------------------------
