@@ -24,6 +24,6 @@ main = do
         Right config -> runCli cmd config
 
 runCli :: CliCommand -> Config -> IO ()
-runCli SpacesCommand = CLI.getSpaces
+runCli (SpacesCommand SpacesOpts {..}) = CLI.getSpaces optStart optLimit optType
 
 --------------------------------------------------------------------------------

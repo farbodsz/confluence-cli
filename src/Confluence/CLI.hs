@@ -22,17 +22,18 @@ handleCli = either (T.putStrLn . errorMsg)
 
 --------------------------------------------------------------------------------
 
-getSpaces :: Config -> IO ()
-getSpaces cfg = runConfluence cfg API.getSpaces >>= handleCli printSpaces
+getSpaces :: Int -> Int -> Maybe SpaceType -> Config -> IO ()
+getSpaces start limit ty cfg =
+    runConfluence cfg (API.getSpaces start limit ty) >>= handleCli printSpaces
 
 printSpaces :: SpaceArray -> IO ()
 printSpaces arr =
     let spaces = sparrResults arr
     in  printTable $ defaultTable
-            [ "Id" : (display . spId <$> spaces)
-            , "Name" : (spName <$> spaces)
-            , "Key" : (spKey <$> spaces)
-            , "Type" : (display . spType <$> spaces)
+            [ "ID" : (display . spId <$> spaces)
+            , "NAME" : (spName <$> spaces)
+            , "KEY" : (spKey <$> spaces)
+            , "TYPE" : (display . spType <$> spaces)
             ]
 
 --------------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 
 module Confluence.Types.Space
     ( Space(..)
+    , SpaceType(..)
     , SpaceArray(..)
     ) where
 
@@ -53,7 +54,7 @@ instance FromJSON Space where
 
 
 data SpaceType = GlobalSpace | PersonalSpace
-    deriving Show
+    deriving (Eq, Read, Show)
 
 instance Display SpaceType where
     display GlobalSpace   = "global"
