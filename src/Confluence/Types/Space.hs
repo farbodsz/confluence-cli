@@ -5,6 +5,7 @@ module Confluence.Types.Space
     , SpaceArray(..)
     ) where
 
+import           Confluence.Display
 import           Confluence.Types.Common
 import           Data.Aeson                     ( (.:)
                                                 , FromJSON(parseJSON)
@@ -53,6 +54,10 @@ instance FromJSON Space where
 
 data SpaceType = GlobalSpace | PersonalSpace
     deriving Show
+
+instance Display SpaceType where
+    display GlobalSpace   = "global"
+    display PersonalSpace = "personal"
 
 instance FromJSON SpaceType where
     parseJSON = withText "SpaceType" $ \case

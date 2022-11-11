@@ -31,8 +31,10 @@ library
       Confluence.CLI
       Confluence.Commands
       Confluence.Config
+      Confluence.Display
       Confluence.Error
       Confluence.Monad
+      Confluence.Table
       Confluence.Types
       Confluence.Types.Common
       Confluence.Types.Space
