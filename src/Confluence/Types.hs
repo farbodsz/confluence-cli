@@ -1,9 +1,9 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types
-    ( module Confluence.Types.Space
-    ) where
+module Confluence.Types (
+    module Confluence.Types.Space,
+) where
 
-import           Confluence.Types.Space
+import Confluence.Types.Space
 
 --------------------------------------------------------------------------------

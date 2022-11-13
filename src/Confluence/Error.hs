@@ -1,11 +1,11 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Error
-    ( ResponseError(..)
-    , errorMsg
-    ) where
+module Confluence.Error (
+    ResponseError (..),
+    errorMsg,
+) where
 
-import qualified Data.Text                     as T
+import qualified Data.Text as T
 
 --------------------------------------------------------------------------------
 

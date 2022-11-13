@@ -1,19 +1,20 @@
 --------------------------------------------------------------------------------
 
-module Confluence.CLI
-    ( getSpaces
-    ) where
+module Confluence.CLI (
+    getSpaces,
+) where
 
-import qualified Confluence.API                as API
-import           Confluence.Config              ( Config )
-import           Confluence.Display
-import           Confluence.Error               ( ResponseError
-                                                , errorMsg
-                                                )
-import           Confluence.Monad               ( runConfluence )
-import           Confluence.Table
-import           Confluence.Types
-import qualified Data.Text.IO                  as T
+import qualified Confluence.API as API
+import Confluence.Config (Config)
+import Confluence.Display
+import Confluence.Error (
+    ResponseError,
+    errorMsg,
+ )
+import Confluence.Monad (runConfluence)
+import Confluence.Table
+import Confluence.Types
+import qualified Data.Text.IO as T
 
 --------------------------------------------------------------------------------
 
@@ -29,11 +30,12 @@ getSpaces start limit ty cfg =
 printSpaces :: SpaceArray -> IO ()
 printSpaces arr =
     let spaces = sparrResults arr
-    in  printTable $ defaultTable
-            [ "ID" : (display . spId <$> spaces)
-            , "NAME" : (spName <$> spaces)
-            , "KEY" : (spKey <$> spaces)
-            , "TYPE" : (display . spType <$> spaces)
-            ]
+     in printTable $
+            defaultTable
+                [ "ID" : (display . spId <$> spaces)
+                , "NAME" : (spName <$> spaces)
+                , "KEY" : (spKey <$> spaces)
+                , "TYPE" : (display . spType <$> spaces)
+                ]
 
 --------------------------------------------------------------------------------

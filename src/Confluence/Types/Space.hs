@@ -1,29 +1,30 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types.Space
-    ( Space(..)
-    , SpaceType(..)
-    , SpaceArray(..)
-    ) where
+module Confluence.Types.Space (
+    Space (..),
+    SpaceType (..),
+    SpaceArray (..),
+) where
 
-import           Confluence.Display
-import           Confluence.Types.Common
-import           Data.Aeson                     ( (.:)
-                                                , FromJSON(parseJSON)
-                                                , Object
-                                                , withObject
-                                                , withText
-                                                )
-import           Data.Text                      ( Text )
-import           GHC.Generics                   ( Generic )
+import Confluence.Display
+import Confluence.Types.Common
+import Data.Aeson (
+    FromJSON (parseJSON),
+    Object,
+    withObject,
+    withText,
+    (.:),
+ )
+import Data.Text (Text)
+import GHC.Generics (Generic)
 
 --------------------------------------------------------------------------------
 
 -- We leave out these fields from Space, as we don't care about them:
 --
 --   * description
---   * icon 
---   * homepage 
+--   * icon
+--   * homepage
 --   * metadata
 --   * operations
 --   * permissions
@@ -33,14 +34,14 @@ import           GHC.Generics                   ( Generic )
 --   * history
 --
 data Space = Space
-    { spId         :: Int
-    , spKey        :: Text
-    , spName       :: Text
-    , spType       :: SpaceType
-    , spLinks      :: GenericLinks
+    { spId :: Int
+    , spKey :: Text
+    , spName :: Text
+    , spType :: SpaceType
+    , spLinks :: GenericLinks
     , spExpandable :: Object
     }
-    deriving Show
+    deriving (Show)
 
 instance FromJSON Space where
     parseJSON = withObject "Space" $ \v ->
@@ -52,25 +53,22 @@ instance FromJSON Space where
             <*> (v .: "_links")
             <*> (v .: "_expandable")
 
-
 data SpaceType = GlobalSpace | PersonalSpace
     deriving (Eq, Read, Show)
 
 instance Display SpaceType where
-    display GlobalSpace   = "global"
+    display GlobalSpace = "global"
     display PersonalSpace = "personal"
 
 instance FromJSON SpaceType where
     parseJSON = withText "SpaceType" $ \case
-        "global"   -> pure GlobalSpace
+        "global" -> pure GlobalSpace
         "personal" -> pure PersonalSpace
-        _          -> fail "Invalid SpaceType"
-
-
+        _ -> fail "Invalid SpaceType"
 
 data SpaceDescriptions = SpaceDescriptions
-    { spdsPlain      :: SpaceDescription
-    , spdsView       :: SpaceDescription
+    { spdsPlain :: SpaceDescription
+    , spdsView :: SpaceDescription
     , spdsExpandable :: DescriptionExpandable
     }
     deriving (Generic, Show)
@@ -82,10 +80,9 @@ instance FromJSON SpaceDescriptions where
             <*> (v .: "view")
             <*> (v .: "_expandable")
 
-
 data SpaceDescription = SpaceDescription
-    { spdValue           :: Text
-    , spdRepresentation  :: Representation
+    { spdValue :: Text
+    , spdRepresentation :: Representation
     , spdEmbeddedContent :: [Object]
     }
     deriving (Generic, Show)
@@ -97,25 +94,24 @@ instance FromJSON SpaceDescription where
             <*> (v .: "representation")
             <*> (v .: "embeddedContent")
 
-
 data DescriptionExpandable = DescriptionExpandable
-    { dexpView  :: Text
+    { dexpView :: Text
     , dexpPlain :: Text
     }
     deriving (Generic, Show)
 
 instance FromJSON DescriptionExpandable where
-    parseJSON = withObject "DescriptionExpandable"
-        $ \v -> DescriptionExpandable <$> (v .: "view") <*> (v .: "plain")
+    parseJSON = withObject "DescriptionExpandable" $ \v ->
+        DescriptionExpandable <$> (v .: "view") <*> (v .: "plain")
 
 --------------------------------------------------------------------------------
 
 data SpaceArray = SpaceArray
     { sparrResults :: [Space]
-    , sparrStart   :: Int
-    , sparrLimit   :: Int
-    , sparrSize    :: Int
-    , sparrLinks   :: GenericLinks
+    , sparrStart :: Int
+    , sparrLimit :: Int
+    , sparrSize :: Int
+    , sparrLinks :: GenericLinks
     }
     deriving (Generic, Show)
 

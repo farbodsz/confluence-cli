@@ -1,11 +1,11 @@
 --------------------------------------------------------------------------------
 
 -- | Things that can be pretty printed
-module Confluence.Display
-    ( Display(..)
-    ) where
+module Confluence.Display (
+    Display (..),
+) where
 
-import qualified Data.Text                     as T
+import qualified Data.Text as T
 
 --------------------------------------------------------------------------------
 

@@ -1,16 +1,17 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Monad
-    ( ConfluenceM
-    , runConfluence
-    ) where
+module Confluence.Monad (
+    ConfluenceM,
+    runConfluence,
+) where
 
-import           Confluence.Config              ( Config )
-import           Confluence.Error               ( ResponseError )
-import           Control.Monad.Except           ( ExceptT
-                                                , runExceptT
-                                                )
-import           Control.Monad.Reader           ( ReaderT(runReaderT) )
+import Confluence.Config (Config)
+import Confluence.Error (ResponseError)
+import Control.Monad.Except (
+    ExceptT,
+    runExceptT,
+ )
+import Control.Monad.Reader (ReaderT (runReaderT))
 
 --------------------------------------------------------------------------------
 
