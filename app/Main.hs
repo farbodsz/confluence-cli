@@ -2,8 +2,8 @@
 
 module Main where
 
-import           Confluence.API                 ( testApi )
-import           Confluence.CLI
+import qualified Confluence.CLI                as CLI
+import           Confluence.Commands
 import           Confluence.Config
 import qualified Data.Text.IO                  as T
 import           Options.Applicative            ( execParser )
@@ -20,10 +20,10 @@ main = do
             NoConfigFoundErr path ->
                 putStrLn $ "Config file does not exist: " ++ path
             InvalidConfigErr contents ->
-                T.putStrLn $ "Unable to parse config: \n" <> contents
+                T.putStrLn $ "Invalid config file:\n" <> contents
         Right config -> runCli cmd config
 
 runCli :: CliCommand -> Config -> IO ()
-runCli ApiCommand = testApi
+runCli (SpacesCommand SpacesOpts {..}) = CLI.getSpaces optStart optLimit optType
 
 --------------------------------------------------------------------------------

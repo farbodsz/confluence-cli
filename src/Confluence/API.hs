@@ -1,25 +1,35 @@
 --------------------------------------------------------------------------------
 
-module Confluence.API where
+module Confluence.API
+    ( getSpaces
+    ) where
 
-import           Confluence.Config              ( Config )
-import qualified Data.ByteString.Lazy.Char8    as L8
-import           Network.HTTP.Simple            ( getResponseBody
-                                                , getResponseHeader
-                                                , getResponseStatusCode
-                                                , httpLBS
-                                                )
+import           Confluence.API.Request
+import           Confluence.Monad               ( ConfluenceM )
+import           Confluence.Types
+import           Data.ByteString                ( ByteString )
+import qualified Data.ByteString.Char8         as B8
 
 --------------------------------------------------------------------------------
+-- API endpoint functions
 
-testApi :: Config -> IO ()
-testApi cfg = do
-    print cfg
+-- | @getSpaces start limit type@ returns a list of spaces.
+getSpaces :: Int -> Int -> Maybe SpaceType -> ConfluenceM SpaceArray
+getSpaces start limit m_ty = queryApi
+    "space"
+    [ ("start", qInt start)
+    , ("limit", qInt limit)
+    , ("type" , qSpaceType <$> m_ty)
+    ]
 
-    response <- httpLBS "http://httpbin.org/get"
+--------------------------------------------------------------------------------
+-- Helpers for query items
 
-    putStrLn $ "Status code was: " ++ show (getResponseStatusCode response)
-    print $ getResponseHeader "Content-Type" response
-    L8.putStrLn $ getResponseBody response
+qInt :: Int -> Maybe ByteString
+qInt = Just . B8.pack . show
+
+qSpaceType :: SpaceType -> ByteString
+qSpaceType GlobalSpace   = "global"
+qSpaceType PersonalSpace = "personal"
 
 --------------------------------------------------------------------------------

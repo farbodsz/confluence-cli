@@ -19,10 +19,13 @@ dependencies:
   - filepath
   - http-client
   - http-conduit
+  - mtl
   - optparse-applicative
   - text
 
 default-extensions:
+  - DeriveGeneric
+  - LambdaCase
   - OverloadedStrings
   - RecordWildCards
 

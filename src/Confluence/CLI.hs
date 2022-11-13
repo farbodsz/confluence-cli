@@ -1,37 +1,39 @@
 --------------------------------------------------------------------------------
 
 module Confluence.CLI
-    ( cliArgs
-    , CliCommand(..)
+    ( getSpaces
     ) where
 
-import           Data.Version                   ( showVersion )
-import           Options.Applicative
-import           Paths_confluence_cli           ( version )
+import qualified Confluence.API                as API
+import           Confluence.Config              ( Config )
+import           Confluence.Display
+import           Confluence.Error               ( ResponseError
+                                                , errorMsg
+                                                )
+import           Confluence.Monad               ( runConfluence )
+import           Confluence.Table
+import           Confluence.Types
+import qualified Data.Text.IO                  as T
 
 --------------------------------------------------------------------------------
 
-data CliCommand = ApiCommand
-    deriving Eq
+handleCli :: (a -> IO ()) -> Either ResponseError a -> IO ()
+handleCli = either (T.putStrLn . errorMsg)
 
 --------------------------------------------------------------------------------
 
-cliArgs :: ParserInfo CliCommand
-cliArgs = info (commandP <**> helper) (cliHeader <> fullDesc)
+getSpaces :: Int -> Int -> Maybe SpaceType -> Config -> IO ()
+getSpaces start limit ty cfg =
+    runConfluence cfg (API.getSpaces start limit ty) >>= handleCli printSpaces
 
-cliHeader :: InfoMod CliCommand
-cliHeader = header $ "Confluence CLI v" ++ cliVersion
-
-cliVersion :: String
-cliVersion = showVersion version
-
---------------------------------------------------------------------------------
-
-commandP :: Parser CliCommand
-commandP = hsubparser
-    $ command "api" (info apiCmdP $ progDesc "Access the API endpoints")
-
-apiCmdP :: Parser CliCommand
-apiCmdP = pure ApiCommand
+printSpaces :: SpaceArray -> IO ()
+printSpaces arr =
+    let spaces = sparrResults arr
+    in  printTable $ defaultTable
+            [ "ID" : (display . spId <$> spaces)
+            , "NAME" : (spName <$> spaces)
+            , "KEY" : (spKey <$> spaces)
+            , "TYPE" : (display . spType <$> spaces)
+            ]
 
 --------------------------------------------------------------------------------
