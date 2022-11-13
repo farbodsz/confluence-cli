@@ -37,6 +37,7 @@ library
       Confluence.Table
       Confluence.Types
       Confluence.Types.Common
+      Confluence.Types.Instances
       Confluence.Types.Space
   other-modules:
       Paths_confluence_cli
@@ -57,6 +58,7 @@ library
     , filepath
     , http-client
     , http-conduit
+    , http-types
     , mtl
     , optparse-applicative
     , text
@@ -84,6 +86,7 @@ executable confluence
     , filepath
     , http-client
     , http-conduit
+    , http-types
     , mtl
     , optparse-applicative
     , text

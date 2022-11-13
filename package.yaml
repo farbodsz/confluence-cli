@@ -19,6 +19,7 @@ dependencies:
   - filepath
   - http-client
   - http-conduit
+  - http-types
   - mtl
   - optparse-applicative
   - text

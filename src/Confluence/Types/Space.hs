@@ -17,6 +17,7 @@ import Data.Aeson (
  )
 import Data.Text (Text)
 import GHC.Generics (Generic)
+import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
 
 --------------------------------------------------------------------------------
 
@@ -65,6 +66,10 @@ instance FromJSON SpaceType where
         "global" -> pure GlobalSpace
         "personal" -> pure PersonalSpace
         _ -> fail "Invalid SpaceType"
+
+instance QueryValueLike SpaceType where
+    toQueryValue GlobalSpace = Just "global"
+    toQueryValue PersonalSpace = Just "personal"
 
 data SpaceDescriptions = SpaceDescriptions
     { spdsPlain :: SpaceDescription
