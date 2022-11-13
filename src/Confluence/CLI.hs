@@ -17,15 +17,12 @@ import Confluence.Types
 import qualified Data.Text.IO as T
 
 --------------------------------------------------------------------------------
+-- CLI functions
 
-handleCli :: (a -> IO ()) -> Either ResponseError a -> IO ()
-handleCli = either (T.putStrLn . errorMsg)
-
---------------------------------------------------------------------------------
-
-getSpaces :: Int -> Int -> Maybe SpaceType -> Config -> IO ()
-getSpaces start limit ty cfg =
-    runConfluence cfg (API.getSpaces start limit ty) >>= handleCli printSpaces
+getSpaces :: Config -> Int -> Int -> Maybe SpaceType -> IO ()
+getSpaces cfg start limit ty = do
+    result <- runConfluence cfg $ API.getSpaces start limit ty
+    withEither result printSpaces
 
 printSpaces :: SpaceArray -> IO ()
 printSpaces arr =
@@ -37,5 +34,13 @@ printSpaces arr =
                 , "KEY" : (spKey <$> spaces)
                 , "TYPE" : (display . spType <$> spaces)
                 ]
+
+--------------------------------------------------------------------------------
+-- Utility functions
+
+-- | @handleErr action@ prints the error message if there is one, else runs the
+-- @action@.
+withEither :: Either ResponseError a -> (a -> IO ()) -> IO ()
+withEither e action = either (T.putStrLn . errorMsg) action e
 
 --------------------------------------------------------------------------------

@@ -18,6 +18,8 @@ import Control.Monad.Reader (ReaderT (runReaderT))
 -- | The Confluence monad represents the context in executing an API command.
 type ConfluenceM = ReaderT Config (ExceptT ResponseError IO)
 
+-- | @runConfluence config action@ runs some @action@ given a user
+-- configuration.
 runConfluence :: Config -> ConfluenceM a -> IO (Either ResponseError a)
 runConfluence cfg m = runExceptT $ runReaderT m cfg
 
