@@ -3,11 +3,12 @@
 module Confluence.Types.Space (
     Space (..),
     SpaceType (..),
-    SpaceArray (..),
+    SpaceArray,
 ) where
 
 import Confluence.Display
 import Confluence.Types.Common
+import Confluence.Types.ResultArray (ResultArray)
 import Data.Aeson (
     FromJSON (parseJSON),
     Object,
@@ -18,6 +19,10 @@ import Data.Aeson (
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
+
+--------------------------------------------------------------------------------
+
+type SpaceArray = ResultArray Space
 
 --------------------------------------------------------------------------------
 
@@ -96,18 +101,5 @@ data DescriptionExpandable = DescriptionExpandable
     deriving (Generic, Show)
 
 instance FromJSON DescriptionExpandable
-
---------------------------------------------------------------------------------
-
-data SpaceArray = SpaceArray
-    { results :: [Space]
-    , start :: Int
-    , limit :: Int
-    , size :: Int
-    , _links :: GenericLinks
-    }
-    deriving (Generic, Show)
-
-instance FromJSON SpaceArray
 
 --------------------------------------------------------------------------------

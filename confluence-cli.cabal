@@ -37,7 +37,9 @@ library
       Confluence.Table
       Confluence.Types
       Confluence.Types.Common
+      Confluence.Types.Content
       Confluence.Types.Instances
+      Confluence.Types.ResultArray
       Confluence.Types.Space
   other-modules:
       Paths_confluence_cli

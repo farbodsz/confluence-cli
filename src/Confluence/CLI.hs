@@ -19,6 +19,8 @@ import Data.Text.IO qualified as T
 --------------------------------------------------------------------------------
 -- CLI functions
 
+-- TODO: support more options:
+-- https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-space/#api-wiki-rest-api-space-get
 getSpaces :: Config -> Int -> Int -> Maybe SpaceType -> IO ()
 getSpaces cfg start limit ty = do
     result <- runConfluence cfg $ API.getSpaces start limit ty
@@ -41,6 +43,6 @@ printSpaces arr =
 -- | @handleErr action@ prints the error message if there is one, else runs the
 -- @action@.
 withEither :: Either ResponseError a -> (a -> IO ()) -> IO ()
-withEither e action = either (T.putStrLn . errorMsg) action e
+withEither e action = either (T.putStrLn . ("Error:  " <>) . errorMsg) action e
 
 --------------------------------------------------------------------------------
