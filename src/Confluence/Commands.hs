@@ -32,9 +32,9 @@ cliVersion = showVersion version
 -- Spaces
 
 data SpacesOpts = SpacesOpts
-    { optStart :: Int
-    , optLimit :: Int
-    , optType :: Maybe SpaceType
+    { start :: Int
+    , limit :: Int
+    , spaceType :: Maybe SpaceType
     }
     deriving (Eq)
 

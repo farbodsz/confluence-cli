@@ -4,7 +4,7 @@ module Confluence.CLI (
     getSpaces,
 ) where
 
-import qualified Confluence.API as API
+import Confluence.API qualified as API
 import Confluence.Config (Config)
 import Confluence.Display
 import Confluence.Error (
@@ -14,7 +14,7 @@ import Confluence.Error (
 import Confluence.Monad (runConfluence)
 import Confluence.Table
 import Confluence.Types
-import qualified Data.Text.IO as T
+import Data.Text.IO qualified as T
 
 --------------------------------------------------------------------------------
 -- CLI functions
@@ -26,13 +26,13 @@ getSpaces cfg start limit ty = do
 
 printSpaces :: SpaceArray -> IO ()
 printSpaces arr =
-    let spaces = sparrResults arr
+    let spaces = arr.results
      in printTable $
             defaultTable
-                [ "ID" : (display . spId <$> spaces)
-                , "NAME" : (spName <$> spaces)
-                , "KEY" : (spKey <$> spaces)
-                , "TYPE" : (display . spType <$> spaces)
+                [ "ID" : (display . (.id) <$> spaces)
+                , "NAME" : ((.name) <$> spaces)
+                , "KEY" : ((.key) <$> spaces)
+                , "TYPE" : (display . (.spaceType) <$> spaces)
                 ]
 
 --------------------------------------------------------------------------------

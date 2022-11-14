@@ -14,10 +14,10 @@ import Data.Aeson (
     FromJSON,
     decode,
  )
-import qualified Data.ByteString.Lazy as LB
+import Data.ByteString.Lazy qualified as LB
 import Data.Either.Extra (maybeToEither)
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as TE
+import Data.Text qualified as T
+import Data.Text.Encoding qualified as TE
 import Network.HTTP.Simple (
     Query,
     Request,
@@ -39,10 +39,10 @@ import System.FilePath ((</>))
 
 -- | Request with headers and host set based on user configuration.
 baseRequest :: Config -> Request
-baseRequest Config {..} =
+baseRequest cfg =
     setRequestMethod "GET" $
-        setRequestBearerAuth (TE.encodeUtf8 cfgApiToken) $
-            setRequestHost (TE.encodeUtf8 cfgUrl) defaultRequest
+        setRequestBearerAuth (TE.encodeUtf8 cfg.apiToken) $
+            setRequestHost (TE.encodeUtf8 cfg.url) defaultRequest
 
 type Endpoint = String
 

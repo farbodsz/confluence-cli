@@ -1,12 +1,12 @@
 --------------------------------------------------------------------------------
 
-module Main where
+module Main (main) where
 
-import qualified Confluence.CLI as CLI
+import Confluence.CLI qualified as CLI
 import Confluence.Commands
 import Confluence.Config
-import qualified Data.Text as T
-import qualified Data.Text.IO as T
+import Data.Text qualified as T
+import Data.Text.IO qualified as T
 import Options.Applicative (execParser)
 
 --------------------------------------------------------------------------------
@@ -19,8 +19,8 @@ main = do
     case e_config of
         Left err -> T.putStrLn $ configErrMsg err
         Right cfg -> case cmd of
-            SpacesCommand (SpacesOpts {..}) ->
-                CLI.getSpaces cfg optStart optLimit optType
+            SpacesCommand opts ->
+                CLI.getSpaces cfg opts.start opts.limit opts.spaceType
 
 configErrMsg :: ConfigLoadError -> T.Text
 configErrMsg (NoConfigFoundErr path) = "Config file does not exist: " <> T.pack path

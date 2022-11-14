@@ -8,11 +8,11 @@ module Confluence.Config (
 ) where
 
 import Data.Aeson
-import qualified Data.ByteString.Lazy as BL
+import Data.ByteString.Lazy qualified as BL
 import Data.Either.Extra (maybeToEither)
-import qualified Data.Text as T
-import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Encoding as TLE
+import Data.Text qualified as T
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Encoding qualified as TLE
 import System.Directory (
     XdgDirectory (XdgConfig),
     doesFileExist,
@@ -23,9 +23,9 @@ import System.FilePath ((</>))
 --------------------------------------------------------------------------------
 
 data Config = Config
-    { cfgEmail :: T.Text
-    , cfgApiToken :: T.Text
-    , cfgUrl :: T.Text
+    { email :: T.Text
+    , apiToken :: T.Text
+    , url :: T.Text
     }
     deriving (Show)
 
@@ -34,8 +34,8 @@ instance FromJSON Config where
         Config <$> v .: "email" <*> v .: "token" <*> v .: "url"
 
 instance ToJSON Config where
-    toJSON Config {..} =
-        object ["email" .= cfgEmail, "token" .= cfgApiToken, "url" .= cfgUrl]
+    toJSON cfg =
+        object ["email" .= cfg.email, "token" .= cfg.apiToken, "url" .= cfg.url]
 
 -------------------------------------------------------------------------------
 

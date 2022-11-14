@@ -14,8 +14,8 @@ module Confluence.Table (
 
 import Confluence.Display
 import Data.List (transpose)
-import qualified Data.Text as T
-import qualified Data.Text.IO as T
+import Data.Text qualified as T
+import Data.Text.IO qualified as T
 
 --------------------------------------------------------------------------------
 -- Column meta
@@ -25,8 +25,8 @@ data Width = Fixed Int | Expandable
 data Alignment = AlignLeft | AlignCenter | AlignRight
 
 data ColMeta = ColMeta
-    { cmWidth :: Width
-    , cmAlignment :: Alignment
+    { width :: Width
+    , alignment :: Alignment
     }
 
 --------------------------------------------------------------------------------
@@ -43,12 +43,12 @@ pad AlignRight n = T.justifyRight n ' '
 -- Table
 
 data Table = Table
-    { tableColSep :: T.Text
-    , tableCols :: [Column]
+    { colSep :: T.Text
+    , columns :: [Column]
     }
 
 data Column where
-    Column :: Display a => {colMeta :: ColMeta, colData :: [a]} -> Column
+    Column :: Display a => {meta :: ColMeta, items :: [a]} -> Column
 
 table :: Display a => T.Text -> [ColMeta] -> [[a]] -> Table
 table colSep metas xss = Table colSep $ uncurry Column <$> zip metas xss
@@ -59,9 +59,9 @@ renderTable :: Table -> [T.Text]
 renderTable (Table colSep cols) = T.intercalate colSep <$> transpose colTexts
   where
     colTexts = mkCol <$> cols
-    mkCol (Column meta xs) = pad (cmAlignment meta) w <$> ts
+    mkCol (Column meta xs) = pad meta.alignment w <$> ts
       where
-        w = case cmWidth meta of
+        w = case meta.width of
             Fixed x -> x
             Expandable -> maximum (T.length <$> ts)
         ts = display <$> xs

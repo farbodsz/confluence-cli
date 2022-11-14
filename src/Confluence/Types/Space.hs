@@ -35,12 +35,12 @@ import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
 --   * history
 --
 data Space = Space
-    { spId :: Int
-    , spKey :: Text
-    , spName :: Text
-    , spType :: SpaceType
-    , spLinks :: GenericLinks
-    , spExpandable :: Object
+    { id :: Int
+    , key :: Text
+    , name :: Text
+    , spaceType :: SpaceType
+    , _links :: GenericLinks
+    , _expandable :: Object
     }
     deriving (Show)
 
@@ -72,61 +72,42 @@ instance QueryValueLike SpaceType where
     toQueryValue PersonalSpace = Just "personal"
 
 data SpaceDescriptions = SpaceDescriptions
-    { spdsPlain :: SpaceDescription
-    , spdsView :: SpaceDescription
-    , spdsExpandable :: DescriptionExpandable
+    { plain :: SpaceDescription
+    , view :: SpaceDescription
+    , _expandable :: DescriptionExpandable
     }
     deriving (Generic, Show)
 
-instance FromJSON SpaceDescriptions where
-    parseJSON = withObject "SpaceDescriptions" $ \v ->
-        SpaceDescriptions
-            <$> (v .: "plain")
-            <*> (v .: "view")
-            <*> (v .: "_expandable")
+instance FromJSON SpaceDescriptions
 
 data SpaceDescription = SpaceDescription
-    { spdValue :: Text
-    , spdRepresentation :: Representation
-    , spdEmbeddedContent :: [Object]
+    { value :: Text
+    , representation :: Representation
+    , embeddedContent :: [Object]
     }
     deriving (Generic, Show)
 
-instance FromJSON SpaceDescription where
-    parseJSON = withObject "SpaceDescriptions" $ \v ->
-        SpaceDescription
-            <$> (v .: "value")
-            <*> (v .: "representation")
-            <*> (v .: "embeddedContent")
+instance FromJSON SpaceDescription
 
 data DescriptionExpandable = DescriptionExpandable
-    { dexpView :: Text
-    , dexpPlain :: Text
+    { view :: Text
+    , plain :: Text
     }
     deriving (Generic, Show)
 
-instance FromJSON DescriptionExpandable where
-    parseJSON = withObject "DescriptionExpandable" $ \v ->
-        DescriptionExpandable <$> (v .: "view") <*> (v .: "plain")
+instance FromJSON DescriptionExpandable
 
 --------------------------------------------------------------------------------
 
 data SpaceArray = SpaceArray
-    { sparrResults :: [Space]
-    , sparrStart :: Int
-    , sparrLimit :: Int
-    , sparrSize :: Int
-    , sparrLinks :: GenericLinks
+    { results :: [Space]
+    , start :: Int
+    , limit :: Int
+    , size :: Int
+    , _links :: GenericLinks
     }
     deriving (Generic, Show)
 
-instance FromJSON SpaceArray where
-    parseJSON = withObject "SpaceArray" $ \v ->
-        SpaceArray
-            <$> (v .: "results")
-            <*> (v .: "start")
-            <*> (v .: "limit")
-            <*> (v .: "size")
-            <*> (v .: "_links")
+instance FromJSON SpaceArray
 
 --------------------------------------------------------------------------------
