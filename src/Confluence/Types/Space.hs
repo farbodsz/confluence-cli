@@ -2,6 +2,7 @@
 
 module Confluence.Types.Space (
     Space (..),
+    SpaceKey,
     SpaceType (..),
     SpaceArray,
 ) where
@@ -17,6 +18,7 @@ import Data.Aeson (
     (.:),
  )
 import Data.Text (Text)
+import Data.Text qualified as T
 import GHC.Generics (Generic)
 import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
 
@@ -41,7 +43,7 @@ type SpaceArray = ResultArray Space
 --
 data Space = Space
     { id :: Int
-    , key :: Text
+    , key :: SpaceKey
     , name :: Text
     , spaceType :: SpaceType
     , _links :: GenericLinks
@@ -58,6 +60,8 @@ instance FromJSON Space where
             <*> (v .: "type")
             <*> (v .: "_links")
             <*> (v .: "_expandable")
+
+type SpaceKey = Text
 
 data SpaceType = GlobalSpace | PersonalSpace
     deriving (Eq, Read, Show)
@@ -87,12 +91,21 @@ instance FromJSON SpaceDescriptions
 
 data SpaceDescription = SpaceDescription
     { value :: Text
-    , representation :: Representation
+    , representation :: SpaceRepresentation
     , embeddedContent :: [Object]
     }
     deriving (Generic, Show)
 
 instance FromJSON SpaceDescription
+
+data SpaceRepresentation = PlainRepresentation | ViewRepresentation
+    deriving (Eq, Show)
+
+instance FromJSON SpaceRepresentation where
+    parseJSON = withText "SpaceRepresentation" $ \case
+        "plain" -> pure PlainRepresentation
+        "view" -> pure ViewRepresentation
+        t -> fail $ "Invalid representation '" <> T.unpack t <> "'"
 
 data DescriptionExpandable = DescriptionExpandable
     { view :: Text

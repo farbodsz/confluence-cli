@@ -1,6 +1,10 @@
 --------------------------------------------------------------------------------
 
 module Confluence.CLI (
+    -- * Content
+    createContent,
+
+    -- * Spaces
     getSpaces,
 ) where
 
@@ -14,10 +18,19 @@ import Confluence.Error (
 import Confluence.Monad (runConfluence)
 import Confluence.Table
 import Confluence.Types
+import Data.Text qualified as T
 import Data.Text.IO qualified as T
 
 --------------------------------------------------------------------------------
--- CLI functions
+-- Content
+
+createContent :: Config -> SpaceKey -> T.Text -> ContentType -> T.Text -> IO ()
+createContent cfg key title ty body = do
+    result <- runConfluence cfg $ API.createContent key title ty body
+    withEither result $ pure . pure ()
+
+--------------------------------------------------------------------------------
+-- Spaces
 
 -- TODO: support more options:
 -- https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-space/#api-wiki-rest-api-space-get

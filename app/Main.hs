@@ -19,11 +19,14 @@ main = do
     case e_config of
         Left err -> T.putStrLn $ configErrMsg err
         Right cfg -> case cmd of
+            ContentCreateCommand opts ->
+                CLI.createContent cfg opts.space opts.title opts.contentType opts.body
             SpacesCommand opts ->
                 CLI.getSpaces cfg opts.start opts.limit opts.spaceType
 
 configErrMsg :: ConfigLoadError -> T.Text
-configErrMsg (NoConfigFoundErr path) = "Config file does not exist: " <> T.pack path
+configErrMsg (NoConfigFoundErr path) = 
+    "Config file does not exist: " <> T.pack path
 configErrMsg (InvalidConfigErr contents) = "Invalid config file:\n" <> contents
 
 --------------------------------------------------------------------------------

@@ -3,21 +3,24 @@
 module Confluence.Commands (
     cliArgs,
     CliCommand (..),
+    ContentCreateOpts (..),
     SpacesOpts (..),
 ) where
 
 import Confluence.Types
 import Data.String (IsString)
+import Data.Text qualified as T
 import Data.Version (showVersion)
 import Options.Applicative
 import Paths_confluence_cli (version)
 
 --------------------------------------------------------------------------------
+-- Root
 
-data CliCommand = SpacesCommand SpacesOpts
+data CliCommand
+    = ContentCreateCommand ContentCreateOpts
+    | SpacesCommand SpacesOpts
     deriving (Eq)
-
---------------------------------------------------------------------------------
 
 cliArgs :: ParserInfo CliCommand
 cliArgs = info (commandP <**> helper) (cliHeader <> fullDesc)
@@ -28,6 +31,48 @@ cliHeader = header $ "Confluence CLI v" ++ cliVersion
 cliVersion :: String
 cliVersion = showVersion version
 
+commandP :: Parser CliCommand
+commandP =
+    hsubparser $
+        command "content" (info contentCreateCmdP $ progDesc "Create content")
+            <> command "spaces" (info spacesCmdP $ progDesc "Get spaces")
+
+--------------------------------------------------------------------------------
+-- Content
+
+-- TODO: title, status, representation, space, body, etc.
+data ContentCreateOpts = ContentCreateOpts
+    { space :: SpaceKey
+    , title :: T.Text
+    , contentType :: ContentType
+    , body :: T.Text
+    }
+    deriving (Eq)
+
+contentCreateCmdP :: Parser CliCommand
+contentCreateCmdP =
+    fmap ContentCreateCommand $
+        ContentCreateOpts
+            <$> strOption
+                ( long "space"
+                    <> help "Space that the content is being created in"
+                    <> metavar "STRING"
+                )
+            <*> strOption (long "title" <> metavar "STRING")
+            <*> contentTypeOptP
+            <*> strOption (long "body" <> metavar "STRING")
+
+contentTypeOptP :: Parser ContentType
+contentTypeOptP =
+    option
+        typeReader
+        ( long "type"
+            <> help "Type of the new content, e.g. \"page\""
+            <> metavar "STRING"
+            <> showDefault
+            <> value PageContent
+        )
+
 --------------------------------------------------------------------------------
 -- Spaces
 
@@ -37,10 +82,6 @@ data SpacesOpts = SpacesOpts
     , spaceType :: Maybe SpaceType
     }
     deriving (Eq)
-
-commandP :: Parser CliCommand
-commandP =
-    hsubparser $ command "spaces" (info spacesCmdP $ progDesc "Get spaces")
 
 spacesCmdP :: Parser CliCommand
 spacesCmdP =
@@ -93,6 +134,13 @@ class ReadOpt a where
 
 typeReader :: ReadOpt a => ReadM a
 typeReader = maybeReader readOpt
+
+instance ReadOpt ContentType where
+    readOpt "page" = Just PageContent
+    readOpt "blogpost" = Just BlogpostContent
+    readOpt "attachment" = Just AttachmentContent
+    readOpt "content" = Just ContentContent
+    readOpt _ = Nothing
 
 instance ReadOpt SpaceType where
     readOpt "global" = Just GlobalSpace
