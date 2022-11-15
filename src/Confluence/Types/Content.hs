@@ -146,7 +146,7 @@ data ContentRepresentation
     | AnonymousExportViewRepresentation
     | WikiRepresentation
     | AtlasDocFormatRepresentation
-    deriving (Eq, Show)
+    deriving (Eq, Generic, Show)
 
 instance FromJSON ContentRepresentation where
     parseJSON = withText "ContentRepresentation" $ \case
@@ -160,5 +160,16 @@ instance FromJSON ContentRepresentation where
         "wiki" -> pure WikiRepresentation
         "atlas_doc_format" -> pure AtlasDocFormatRepresentation
         t -> fail $ "Invalid ContentRepresentation '" <> T.unpack t <> "'"
+
+instance ToJSON ContentRepresentation where
+    toJSON ViewRepresentation = "view"
+    toJSON ExportViewRepresentation = "export_view"
+    toJSON StyledViewRepresentation = "styled_view"
+    toJSON StorageRepresentation = "storage"
+    toJSON EditorRepresentation = "editor"
+    toJSON Editor2Representation = "editor2"
+    toJSON AnonymousExportViewRepresentation = "anonymous_export_view"
+    toJSON WikiRepresentation = "wiki"
+    toJSON AtlasDocFormatRepresentation = "atlas_doc_format"
 
 --------------------------------------------------------------------------------

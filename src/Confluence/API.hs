@@ -31,15 +31,13 @@ createContent key title ty body =
             , "metadata" .= object ["properties" .= object []]
             ]
   where
+    -- TODO: figure out how to use ToJSONKey for this and let representation be
+    -- modifiable
     representationObj =
-        let reprType = "storage"
-         in object
-                [ reprType
-                    .= object
-                        [ "value" .= body
-                        , "representation" .= reprType
-                        ]
-                ]
+        object
+            [ "storage"
+                .= ContentBodyCreate body StorageRepresentation
+            ]
 
 --------------------------------------------------------------------------------
 -- Spaces
