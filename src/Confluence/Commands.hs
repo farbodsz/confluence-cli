@@ -2,9 +2,9 @@
 
 module Confluence.Commands (
     cliArgs,
-    CliCommand (..),
+    ConfluenceCmd (..),
     ContentCreateOpts (..),
-    SpacesOpts (..),
+    SpacesListOpts (..),
 ) where
 
 import Confluence.Types
@@ -17,28 +17,33 @@ import Paths_confluence_cli (version)
 --------------------------------------------------------------------------------
 -- Root
 
-data CliCommand
+data ConfluenceCmd
     = ContentCreateCommand ContentCreateOpts
-    | SpacesCommand SpacesOpts
+    | SpacesListCommand SpacesListOpts
     deriving (Eq)
 
-cliArgs :: ParserInfo CliCommand
-cliArgs = info (commandP <**> helper) (cliHeader <> fullDesc)
+cliArgs :: ParserInfo ConfluenceCmd
+cliArgs = info (confluenceP <**> helper) (cliHeader <> fullDesc)
 
-cliHeader :: InfoMod CliCommand
+cliHeader :: InfoMod ConfluenceCmd
 cliHeader = header $ "Confluence CLI v" ++ cliVersion
 
 cliVersion :: String
 cliVersion = showVersion version
 
-commandP :: Parser CliCommand
-commandP =
+confluenceP :: Parser ConfluenceCmd
+confluenceP =
     hsubparser $
-        command "content" (info contentCreateCmdP $ progDesc "Create content")
-            <> command "spaces" (info spacesCmdP $ progDesc "Get spaces")
+        command "content" (info contentP $ progDesc "Content")
+            <> command "spaces" (info spacesP $ progDesc "Spaces")
 
 --------------------------------------------------------------------------------
 -- Content
+
+contentP :: Parser ConfluenceCmd
+contentP =
+    hsubparser $
+        command "add" (info contentCreateP $ progDesc "Add content")
 
 -- TODO: status, representation
 data ContentCreateOpts = ContentCreateOpts
@@ -49,8 +54,8 @@ data ContentCreateOpts = ContentCreateOpts
     }
     deriving (Eq)
 
-contentCreateCmdP :: Parser CliCommand
-contentCreateCmdP =
+contentCreateP :: Parser ConfluenceCmd
+contentCreateP =
     fmap ContentCreateCommand $
         ContentCreateOpts
             <$> strOption
@@ -76,17 +81,22 @@ contentTypeOptP =
 --------------------------------------------------------------------------------
 -- Spaces
 
-data SpacesOpts = SpacesOpts
+spacesP :: Parser ConfluenceCmd
+spacesP =
+    hsubparser $
+        command "list" (info spacesListP $ progDesc "List spaces")
+
+data SpacesListOpts = SpacesListOpts
     { start :: Int
     , limit :: Int
     , spaceType :: Maybe SpaceType
     }
     deriving (Eq)
 
-spacesCmdP :: Parser CliCommand
-spacesCmdP =
-    fmap SpacesCommand $
-        SpacesOpts
+spacesListP :: Parser ConfluenceCmd
+spacesListP =
+    fmap SpacesListCommand $
+        SpacesListOpts
             <$> startOptP
             <*> limitOptP
             <*> spaceTypeOptP

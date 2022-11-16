@@ -15,23 +15,24 @@ main :: IO ()
 main = do
     cmd <- execParser cliArgs
     e_config <- loadConfig
-
     case e_config of
         Left err -> T.putStrLn $ configErrMsg err
-        Right cfg -> case cmd of
-            ContentCreateCommand opts ->
-                CLI.createContent
-                    cfg
-                    opts.space
-                    opts.title
-                    opts.contentType
-                    opts.filePath
-            SpacesCommand opts ->
-                CLI.getSpaces cfg opts.start opts.limit opts.spaceType
+        Right cfg -> runCommand cfg cmd
 
 configErrMsg :: ConfigLoadError -> T.Text
 configErrMsg (NoConfigFoundErr path) =
     "Config file does not exist: " <> T.pack path
 configErrMsg (InvalidConfigErr contents) = "Invalid config file:\n" <> contents
+
+runCommand :: Config -> ConfluenceCmd -> IO ()
+runCommand cfg (ContentCreateCommand opts) =
+    CLI.createContent
+        cfg
+        opts.space
+        opts.title
+        opts.contentType
+        opts.filePath
+runCommand cfg (SpacesListCommand opts) =
+    CLI.getSpaces cfg opts.start opts.limit opts.spaceType
 
 --------------------------------------------------------------------------------
