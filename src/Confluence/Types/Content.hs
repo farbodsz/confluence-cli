@@ -10,6 +10,7 @@ module Confluence.Types.Content (
     ContentRepresentation (..),
 ) where
 
+import Confluence.Display (Display (display))
 import Confluence.Types.Common (GenericLinks)
 import Confluence.Types.ResultArray (ResultArray)
 import Confluence.Types.Space (Space)
@@ -20,7 +21,6 @@ import Data.Aeson (
     withObject,
     withText,
     (.:),
-    (.:?),
  )
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -34,6 +34,10 @@ type ContentArray = ResultArray Content
 
 -- We leave out these fields from Content, as we don't care about them for now:
 --
+-- Note: some of these depend on what "expandable" properties are set in the get
+-- call.
+--
+--   * body
 --   * history
 --   * version
 --   * ancestors
@@ -46,15 +50,13 @@ type ContentArray = ResultArray Content
 --   * metadata
 --   * macroRenderedOutput
 --   * extensions
---   * extensions
 --
 data Content = Content
     { id :: Text
     , contentType :: ContentType
     , status :: ContentStatus
     , title :: Text
-    , space :: Maybe Space
-    , body :: ContentBodyContainer
+    , space :: Space
     , _expandable :: Object
     , _links :: GenericLinks
     }
@@ -67,8 +69,7 @@ instance FromJSON Content where
             <*> (v .: "type")
             <*> (v .: "status")
             <*> (v .: "title")
-            <*> (v .:? "space")
-            <*> (v .: "body")
+            <*> (v .: "space")
             <*> (v .: "_expandable")
             <*> (v .: "_links")
 
@@ -99,6 +100,12 @@ data ContentStatus
     | HistoricalStatus
     | DraftStatus
     deriving (Eq, Show)
+
+instance Display ContentStatus where
+    display CurrentStatus = "current"
+    display DeletedStatus = "deleted"
+    display HistoricalStatus = "historial"
+    display DraftStatus = "draft"
 
 instance FromJSON ContentStatus where
     parseJSON = withText "ContentStatus" $ \case

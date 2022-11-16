@@ -4,6 +4,7 @@ module Confluence.Commands (
     cliArgs,
     ConfluenceCmd (..),
     ContentCreateOpts (..),
+    ContentListOpts (..),
     SpacesListOpts (..),
 ) where
 
@@ -19,6 +20,7 @@ import Paths_confluence_cli (version)
 
 data ConfluenceCmd
     = ContentCreateCommand ContentCreateOpts
+    | ContentListCommand ContentListOpts
     | SpacesListCommand SpacesListOpts
     deriving (Eq)
 
@@ -44,6 +46,7 @@ contentP :: Parser ConfluenceCmd
 contentP =
     hsubparser $
         command "add" (info contentCreateP $ progDesc "Add content")
+            <> command "list" (info contentListP $ progDesc "List content")
 
 -- TODO: status, representation
 data ContentCreateOpts = ContentCreateOpts
@@ -59,7 +62,7 @@ contentCreateP =
     fmap ContentCreateCommand $
         ContentCreateOpts
             <$> optSpaceKeyP
-            <*> strOption (long "title" <> metavar "STRING")
+            <*> optContentTitleP
             <*> optContentTypeP
             <*> strOption (long "path" <> metavar "FILEPATH")
 
@@ -68,6 +71,14 @@ optSpaceKeyP =
     strOption
         ( long "space"
             <> help "Space that the content belongs to"
+            <> metavar "STRING"
+        )
+
+optContentTitleP :: Parser T.Text
+optContentTitleP =
+    strOption
+        ( long "title"
+            <> help "Content title"
             <> metavar "STRING"
         )
 
@@ -83,6 +94,25 @@ optContentTypeP =
             <> showDefault
             <> value PageContent
         )
+
+data ContentListOpts = ContentListOpts
+    { space :: Maybe SpaceKey
+    , title :: Maybe T.Text
+    , start :: Int
+    , limit :: Int
+    }
+    deriving (Eq)
+
+-- TODO: Only supports --type "page" for now (because title required for page
+-- type, date required for blogpost type)
+contentListP :: Parser ConfluenceCmd
+contentListP =
+    fmap ContentListCommand $
+        ContentListOpts
+            <$> optional optSpaceKeyP
+            <*> optional optContentTitleP
+            <*> optStartP
+            <*> optLimitP
 
 --------------------------------------------------------------------------------
 -- Spaces

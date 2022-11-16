@@ -3,6 +3,7 @@
 module Confluence.CLI (
     -- * Content
     createContent,
+    getContent,
 
     -- * Spaces
     getSpaces,
@@ -33,6 +34,22 @@ createContent cfg key title ty path = do
     result <- runConfluence cfg $ API.createContent key title ty body
     withEither result $ pure . pure ()
 
+-- | @getContent cfg m_key m_title start limit@ lists the Confluence /pages/
+-- satisfying the given filters.
+getContent :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()
+getContent cfg m_key m_title start limit = do
+    result <- runConfluence cfg $ API.getContent m_key m_title start limit
+    withEither result $ \contentArray ->
+        let pages = contentArray.results
+            getSpaceKey = (.key) <$> (.space)
+         in printTable $
+                defaultTable
+                    [ "ID" : displayF ((.id) <$> pages)
+                    , "STATUS" : displayF ((.status) <$> pages)
+                    , "SPACE" : displayF (getSpaceKey <$> pages)
+                    , "TITLE" : displayF ((.title) <$> pages)
+                    ]
+
 --------------------------------------------------------------------------------
 -- Spaces
 
@@ -61,5 +78,8 @@ printSpaces arr =
 -- @action@.
 withEither :: Either ResponseError a -> (a -> IO ()) -> IO ()
 withEither e action = either (T.putStrLn . ("Error:  " <>) . errorMsg) action e
+
+displayF :: (Functor f, Display a) => f a -> f T.Text
+displayF = fmap display
 
 --------------------------------------------------------------------------------

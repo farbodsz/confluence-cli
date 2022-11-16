@@ -3,6 +3,7 @@
 module Confluence.API (
     -- * Content
     createContent,
+    getContent,
 
     -- * Spaces
     getSpaces,
@@ -38,6 +39,21 @@ createContent key title ty body =
             [ "storage"
                 .= ContentBodyCreate body StorageRepresentation
             ]
+
+-- | @getContent m_spaceKey m_title start limit@ returns a list of pages
+-- filtered by the space key and title, if given. Title filter uses exact match
+-- and is case sensitive.
+getContent ::
+    Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> ConfluenceM ContentArray
+getContent m_key m_title start limit =
+    getApi
+        "content"
+        [ ("spaceKey", toQueryValue m_key)
+        , ("title", toQueryValue m_title)
+        , ("start", toQueryValue start)
+        , ("limit", toQueryValue limit)
+        , ("expand", Just "space")
+        ]
 
 --------------------------------------------------------------------------------
 -- Spaces

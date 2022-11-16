@@ -32,6 +32,13 @@ runCommand cfg (ContentCreateCommand opts) =
         opts.title
         opts.contentType
         opts.filePath
+runCommand cfg (ContentListCommand opts) =
+    CLI.getContent
+        cfg
+        opts.space
+        opts.title
+        opts.start
+        opts.limit
 runCommand cfg (SpacesListCommand opts) =
     CLI.getSpaces cfg opts.start opts.limit opts.spaceType
 
