@@ -58,17 +58,23 @@ contentCreateP :: Parser ConfluenceCmd
 contentCreateP =
     fmap ContentCreateCommand $
         ContentCreateOpts
-            <$> strOption
-                ( long "space"
-                    <> help "Space that the content is being created in"
-                    <> metavar "STRING"
-                )
+            <$> optSpaceKeyP
             <*> strOption (long "title" <> metavar "STRING")
-            <*> contentTypeOptP
+            <*> optContentTypeP
             <*> strOption (long "path" <> metavar "FILEPATH")
 
-contentTypeOptP :: Parser ContentType
-contentTypeOptP =
+optSpaceKeyP :: Parser SpaceKey
+optSpaceKeyP =
+    strOption
+        ( long "space"
+            <> help "Space that the content belongs to"
+            <> metavar "STRING"
+        )
+
+-- | Parser for an optional 'ContentType' option, with a default value of
+-- 'PageContent'.
+optContentTypeP :: Parser ContentType
+optContentTypeP =
     option
         typeReader
         ( long "type"
@@ -97,12 +103,12 @@ spacesListP :: Parser ConfluenceCmd
 spacesListP =
     fmap SpacesListCommand $
         SpacesListOpts
-            <$> startOptP
-            <*> limitOptP
-            <*> spaceTypeOptP
+            <$> optStartP
+            <*> optLimitP
+            <*> optSpaceTypeP
 
-spaceTypeOptP :: Parser (Maybe SpaceType)
-spaceTypeOptP =
+optSpaceTypeP :: Parser (Maybe SpaceType)
+optSpaceTypeP =
     optional $
         option
             typeReader
@@ -114,8 +120,8 @@ spaceTypeOptP =
 --------------------------------------------------------------------------------
 -- Common options
 
-startOptP :: Parser Int
-startOptP =
+optStartP :: Parser Int
+optStartP =
     option
         auto
         ( long "start"
@@ -125,8 +131,8 @@ startOptP =
             <> metavar "INT"
         )
 
-limitOptP :: Parser Int
-limitOptP =
+optLimitP :: Parser Int
+optLimitP =
     option
         auto
         ( long "limit"
