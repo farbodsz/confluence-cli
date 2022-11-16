@@ -2,12 +2,14 @@
 
 module Confluence.Types.Space (
     Space (..),
+    SpaceKey,
     SpaceType (..),
-    SpaceArray (..),
+    SpaceArray,
 ) where
 
 import Confluence.Display
 import Confluence.Types.Common
+import Confluence.Types.ResultArray (ResultArray)
 import Data.Aeson (
     FromJSON (parseJSON),
     Object,
@@ -16,8 +18,13 @@ import Data.Aeson (
     (.:),
  )
 import Data.Text (Text)
+import Data.Text qualified as T
 import GHC.Generics (Generic)
 import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
+
+--------------------------------------------------------------------------------
+
+type SpaceArray = ResultArray Space
 
 --------------------------------------------------------------------------------
 
@@ -35,12 +42,12 @@ import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
 --   * history
 --
 data Space = Space
-    { spId :: Int
-    , spKey :: Text
-    , spName :: Text
-    , spType :: SpaceType
-    , spLinks :: GenericLinks
-    , spExpandable :: Object
+    { id :: Int
+    , key :: SpaceKey
+    , name :: Text
+    , spaceType :: SpaceType
+    , _links :: GenericLinks
+    , _expandable :: Object
     }
     deriving (Show)
 
@@ -53,6 +60,8 @@ instance FromJSON Space where
             <*> (v .: "type")
             <*> (v .: "_links")
             <*> (v .: "_expandable")
+
+type SpaceKey = Text
 
 data SpaceType = GlobalSpace | PersonalSpace
     deriving (Eq, Read, Show)
@@ -72,61 +81,38 @@ instance QueryValueLike SpaceType where
     toQueryValue PersonalSpace = Just "personal"
 
 data SpaceDescriptions = SpaceDescriptions
-    { spdsPlain :: SpaceDescription
-    , spdsView :: SpaceDescription
-    , spdsExpandable :: DescriptionExpandable
+    { plain :: SpaceDescription
+    , view :: SpaceDescription
+    , _expandable :: DescriptionExpandable
     }
     deriving (Generic, Show)
 
-instance FromJSON SpaceDescriptions where
-    parseJSON = withObject "SpaceDescriptions" $ \v ->
-        SpaceDescriptions
-            <$> (v .: "plain")
-            <*> (v .: "view")
-            <*> (v .: "_expandable")
+instance FromJSON SpaceDescriptions
 
 data SpaceDescription = SpaceDescription
-    { spdValue :: Text
-    , spdRepresentation :: Representation
-    , spdEmbeddedContent :: [Object]
+    { value :: Text
+    , representation :: SpaceRepresentation
+    , embeddedContent :: [Object]
     }
     deriving (Generic, Show)
 
-instance FromJSON SpaceDescription where
-    parseJSON = withObject "SpaceDescriptions" $ \v ->
-        SpaceDescription
-            <$> (v .: "value")
-            <*> (v .: "representation")
-            <*> (v .: "embeddedContent")
+instance FromJSON SpaceDescription
+
+data SpaceRepresentation = PlainRepresentation | ViewRepresentation
+    deriving (Eq, Show)
+
+instance FromJSON SpaceRepresentation where
+    parseJSON = withText "SpaceRepresentation" $ \case
+        "plain" -> pure PlainRepresentation
+        "view" -> pure ViewRepresentation
+        t -> fail $ "Invalid representation '" <> T.unpack t <> "'"
 
 data DescriptionExpandable = DescriptionExpandable
-    { dexpView :: Text
-    , dexpPlain :: Text
+    { view :: Text
+    , plain :: Text
     }
     deriving (Generic, Show)
 
-instance FromJSON DescriptionExpandable where
-    parseJSON = withObject "DescriptionExpandable" $ \v ->
-        DescriptionExpandable <$> (v .: "view") <*> (v .: "plain")
-
---------------------------------------------------------------------------------
-
-data SpaceArray = SpaceArray
-    { sparrResults :: [Space]
-    , sparrStart :: Int
-    , sparrLimit :: Int
-    , sparrSize :: Int
-    , sparrLinks :: GenericLinks
-    }
-    deriving (Generic, Show)
-
-instance FromJSON SpaceArray where
-    parseJSON = withObject "SpaceArray" $ \v ->
-        SpaceArray
-            <$> (v .: "results")
-            <*> (v .: "start")
-            <*> (v .: "limit")
-            <*> (v .: "size")
-            <*> (v .: "_links")
+instance FromJSON DescriptionExpandable
 
 --------------------------------------------------------------------------------

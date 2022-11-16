@@ -2,50 +2,101 @@
 
 module Confluence.Commands (
     cliArgs,
-    CliCommand (..),
-    SpacesOpts (..),
+    ConfluenceCmd (..),
+    ContentCreateOpts (..),
+    SpacesListOpts (..),
 ) where
 
 import Confluence.Types
 import Data.String (IsString)
+import Data.Text qualified as T
 import Data.Version (showVersion)
 import Options.Applicative
 import Paths_confluence_cli (version)
 
 --------------------------------------------------------------------------------
+-- Root
 
-data CliCommand = SpacesCommand SpacesOpts
+data ConfluenceCmd
+    = ContentCreateCommand ContentCreateOpts
+    | SpacesListCommand SpacesListOpts
     deriving (Eq)
 
---------------------------------------------------------------------------------
+cliArgs :: ParserInfo ConfluenceCmd
+cliArgs = info (confluenceP <**> helper) (cliHeader <> fullDesc)
 
-cliArgs :: ParserInfo CliCommand
-cliArgs = info (commandP <**> helper) (cliHeader <> fullDesc)
-
-cliHeader :: InfoMod CliCommand
+cliHeader :: InfoMod ConfluenceCmd
 cliHeader = header $ "Confluence CLI v" ++ cliVersion
 
 cliVersion :: String
 cliVersion = showVersion version
 
---------------------------------------------------------------------------------
--- Spaces
+confluenceP :: Parser ConfluenceCmd
+confluenceP =
+    hsubparser $
+        command "content" (info contentP $ progDesc "Content")
+            <> command "spaces" (info spacesP $ progDesc "Spaces")
 
-data SpacesOpts = SpacesOpts
-    { optStart :: Int
-    , optLimit :: Int
-    , optType :: Maybe SpaceType
+--------------------------------------------------------------------------------
+-- Content
+
+contentP :: Parser ConfluenceCmd
+contentP =
+    hsubparser $
+        command "add" (info contentCreateP $ progDesc "Add content")
+
+-- TODO: status, representation
+data ContentCreateOpts = ContentCreateOpts
+    { space :: SpaceKey
+    , title :: T.Text
+    , contentType :: ContentType
+    , filePath :: FilePath
     }
     deriving (Eq)
 
-commandP :: Parser CliCommand
-commandP =
-    hsubparser $ command "spaces" (info spacesCmdP $ progDesc "Get spaces")
+contentCreateP :: Parser ConfluenceCmd
+contentCreateP =
+    fmap ContentCreateCommand $
+        ContentCreateOpts
+            <$> strOption
+                ( long "space"
+                    <> help "Space that the content is being created in"
+                    <> metavar "STRING"
+                )
+            <*> strOption (long "title" <> metavar "STRING")
+            <*> contentTypeOptP
+            <*> strOption (long "path" <> metavar "FILEPATH")
 
-spacesCmdP :: Parser CliCommand
-spacesCmdP =
-    fmap SpacesCommand $
-        SpacesOpts
+contentTypeOptP :: Parser ContentType
+contentTypeOptP =
+    option
+        typeReader
+        ( long "type"
+            <> help "Type of the new content, e.g. \"page\""
+            <> metavar "STRING"
+            <> showDefault
+            <> value PageContent
+        )
+
+--------------------------------------------------------------------------------
+-- Spaces
+
+spacesP :: Parser ConfluenceCmd
+spacesP =
+    hsubparser $
+        command "list" (info spacesListP $ progDesc "List spaces")
+
+data SpacesListOpts = SpacesListOpts
+    { start :: Int
+    , limit :: Int
+    , spaceType :: Maybe SpaceType
+    }
+    deriving (Eq)
+
+spacesListP :: Parser ConfluenceCmd
+spacesListP =
+    fmap SpacesListCommand $
+        SpacesListOpts
             <$> startOptP
             <*> limitOptP
             <*> spaceTypeOptP
@@ -93,6 +144,13 @@ class ReadOpt a where
 
 typeReader :: ReadOpt a => ReadM a
 typeReader = maybeReader readOpt
+
+instance ReadOpt ContentType where
+    readOpt "page" = Just PageContent
+    readOpt "blogpost" = Just BlogpostContent
+    readOpt "attachment" = Just AttachmentContent
+    readOpt "content" = Just ContentContent
+    readOpt _ = Nothing
 
 instance ReadOpt SpaceType where
     readOpt "global" = Just GlobalSpace

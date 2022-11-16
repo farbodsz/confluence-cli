@@ -26,7 +26,11 @@ dependencies:
 
 default-extensions:
   - DeriveGeneric
+  - DuplicateRecordFields
+  - ImportQualifiedPost
   - LambdaCase
+  - NoFieldSelectors
+  - OverloadedRecordDot
   - OverloadedStrings
   - RecordWildCards
 

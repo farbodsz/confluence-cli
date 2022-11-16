@@ -1,21 +1,51 @@
 --------------------------------------------------------------------------------
 
 module Confluence.API (
+    -- * Content
+    createContent,
+
+    -- * Spaces
     getSpaces,
 ) where
 
 import Confluence.API.Request
 import Confluence.Monad (ConfluenceM)
 import Confluence.Types
+import Data.Aeson (object, (.=))
+import Data.Text qualified as T
 import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
 
 --------------------------------------------------------------------------------
--- API endpoint functions
+-- Content
+
+-- | @createContent spaceKey title contentType body@ creates a page.
+createContent :: SpaceKey -> T.Text -> ContentType -> T.Text -> ConfluenceM ()
+createContent key title ty body =
+    postApi
+        "content"
+        $ object
+            [ "space" .= object ["key" .= key]
+            , "title" .= title
+            , "type" .= ty
+            , "body" .= representationObj
+            , "metadata" .= object ["properties" .= object []]
+            ]
+  where
+    -- TODO: figure out how to use ToJSONKey for this and let representation be
+    -- modifiable
+    representationObj =
+        object
+            [ "storage"
+                .= ContentBodyCreate body StorageRepresentation
+            ]
+
+--------------------------------------------------------------------------------
+-- Spaces
 
 -- | @getSpaces start limit type@ returns a list of spaces.
 getSpaces :: Int -> Int -> Maybe SpaceType -> ConfluenceM SpaceArray
 getSpaces start limit m_ty =
-    queryApi
+    getApi
         "space"
         [ ("start", toQueryValue start)
         , ("limit", toQueryValue limit)

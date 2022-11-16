@@ -37,7 +37,10 @@ library
       Confluence.Table
       Confluence.Types
       Confluence.Types.Common
+      Confluence.Types.Content
+      Confluence.Types.ContentCreate
       Confluence.Types.Instances
+      Confluence.Types.ResultArray
       Confluence.Types.Space
   other-modules:
       Paths_confluence_cli
@@ -45,7 +48,11 @@ library
       src
   default-extensions:
       DeriveGeneric
+      DuplicateRecordFields
+      ImportQualifiedPost
       LambdaCase
+      NoFieldSelectors
+      OverloadedRecordDot
       OverloadedStrings
       RecordWildCards
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
@@ -72,7 +79,11 @@ executable confluence
       app
   default-extensions:
       DeriveGeneric
+      DuplicateRecordFields
+      ImportQualifiedPost
       LambdaCase
+      NoFieldSelectors
+      OverloadedRecordDot
       OverloadedStrings
       RecordWildCards
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N

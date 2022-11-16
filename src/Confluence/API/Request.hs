@@ -1,7 +1,8 @@
 --------------------------------------------------------------------------------
 
 module Confluence.API.Request (
-    queryApi,
+    getApi,
+    postApi,
 ) where
 
 import Confluence.Config (Config (..))
@@ -12,12 +13,13 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Reader (MonadReader (ask))
 import Data.Aeson (
     FromJSON,
+    ToJSON,
     decode,
  )
-import qualified Data.ByteString.Lazy as LB
+import Data.ByteString.Lazy qualified as LB
 import Data.Either.Extra (maybeToEither)
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as TE
+import Data.Text qualified as T
+import Data.Text.Encoding qualified as TE
 import Network.HTTP.Simple (
     Query,
     Request,
@@ -27,6 +29,7 @@ import Network.HTTP.Simple (
     getResponseStatusCode,
     httpLBS,
     setRequestBearerAuth,
+    setRequestBodyJSON,
     setRequestHost,
     setRequestMethod,
     setRequestPath,
@@ -34,38 +37,43 @@ import Network.HTTP.Simple (
  )
 import System.FilePath ((</>))
 
---------------------------------------------------------------------------------
--- Request
-
--- | Request with headers and host set based on user configuration.
-baseRequest :: Config -> Request
-baseRequest Config {..} =
-    setRequestMethod "GET" $
-        setRequestBearerAuth (TE.encodeUtf8 cfgApiToken) $
-            setRequestHost (TE.encodeUtf8 cfgUrl) defaultRequest
-
 type Endpoint = String
 
-mkRequest :: Config -> Endpoint -> Query -> Request
-mkRequest cfg path query =
-    setRequestPath (TE.encodeUtf8 fullPath) $
-        setRequestQueryString query $
-            baseRequest cfg
+-- | Creates a request with headers and host set based on user configuration.
+baseRequest :: Config -> Endpoint -> Request
+baseRequest cfg path =
+    setRequestBearerAuth (TE.encodeUtf8 cfg.apiToken) $
+        setRequestHost (TE.encodeUtf8 cfg.url) $
+            setRequestPath (TE.encodeUtf8 fullPath) defaultRequest
   where
     fullPath = T.pack $ "/rest/api" </> path
 
---------------------------------------------------------------------------------
--- Response
-
 parseResponse :: FromJSON a => Response LB.ByteString -> Either ResponseError a
-parseResponse resp = case getResponseStatusCode resp of
-    200 -> maybeToEither ResponseDecodeError . decode . getResponseBody $ resp
-    code -> Left $ HttpError code
+parseResponse resp =
+    let body = getResponseBody resp
+     in case getResponseStatusCode resp of
+            200 -> maybeToEither (ResponseDecodeError body) . decode $ body
+            code -> Left $ HttpError code
 
-queryApi :: FromJSON a => Endpoint -> Query -> ConfluenceM a
-queryApi path query = do
+getApi :: FromJSON a => Endpoint -> Query -> ConfluenceM a
+getApi path query = do
     cfg <- ask
-    resp <- liftIO $ httpLBS (mkRequest cfg path query)
+    let request =
+            setRequestMethod "GET" $
+                setRequestQueryString query $
+                    baseRequest cfg path
+
+    resp <- liftIO $ httpLBS request
+    liftEither $ parseResponse resp
+
+postApi :: (FromJSON a, ToJSON b) => Endpoint -> b -> ConfluenceM a
+postApi path payload = do
+    cfg <- ask
+    let request =
+            setRequestMethod "POST" $
+                setRequestBodyJSON payload $
+                    baseRequest cfg path
+    resp <- liftIO $ httpLBS request
     liftEither $ parseResponse resp
 
 --------------------------------------------------------------------------------

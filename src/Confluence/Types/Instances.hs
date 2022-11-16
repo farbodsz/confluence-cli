@@ -5,7 +5,7 @@
 -- | Orphan instances of library types.
 module Confluence.Types.Instances where
 
-import qualified Data.ByteString.Char8 as B8
+import Data.ByteString.Char8 qualified as B8
 import Network.HTTP.Types.QueryLike
 
 --------------------------------------------------------------------------------

@@ -5,7 +5,7 @@ module Confluence.Display (
     Display (..),
 ) where
 
-import qualified Data.Text as T
+import Data.Text qualified as T
 
 --------------------------------------------------------------------------------
 

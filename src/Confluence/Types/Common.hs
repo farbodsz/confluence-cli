@@ -1,27 +1,11 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types.Common (
-    GenericLinks,
-    Representation,
-) where
+module Confluence.Types.Common (GenericLinks) where
 
-import Data.Aeson (
-    FromJSON (parseJSON),
-    Object,
-    withText,
- )
+import Data.Aeson (Object)
 
 --------------------------------------------------------------------------------
 
 type GenericLinks = Object
-
-data Representation = PlainRepresentation | ViewRepresentation
-    deriving (Eq, Show)
-
-instance FromJSON Representation where
-    parseJSON = withText "Representation" $ \case
-        "plain" -> pure PlainRepresentation
-        "view" -> pure ViewRepresentation
-        _ -> fail "Invalid representation"
 
 --------------------------------------------------------------------------------
