@@ -24,8 +24,12 @@ import Data.Text.IO qualified as T
 --------------------------------------------------------------------------------
 -- Content
 
-createContent :: Config -> SpaceKey -> T.Text -> ContentType -> T.Text -> IO ()
-createContent cfg key title ty body = do
+-- | @createContent cfg key title contentType filePath@ creates a Confluence
+-- page using "storage" representation with the content given by the file path.
+createContent ::
+    Config -> SpaceKey -> T.Text -> ContentType -> FilePath -> IO ()
+createContent cfg key title ty path = do
+    body <- T.readFile path
     result <- runConfluence cfg $ API.createContent key title ty body
     withEither result $ pure . pure ()
 

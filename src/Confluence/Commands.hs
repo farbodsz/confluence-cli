@@ -40,12 +40,12 @@ commandP =
 --------------------------------------------------------------------------------
 -- Content
 
--- TODO: title, status, representation, space, body, etc.
+-- TODO: status, representation
 data ContentCreateOpts = ContentCreateOpts
     { space :: SpaceKey
     , title :: T.Text
     , contentType :: ContentType
-    , body :: T.Text
+    , filePath :: FilePath
     }
     deriving (Eq)
 
@@ -60,7 +60,7 @@ contentCreateCmdP =
                 )
             <*> strOption (long "title" <> metavar "STRING")
             <*> contentTypeOptP
-            <*> strOption (long "body" <> metavar "STRING")
+            <*> strOption (long "path" <> metavar "FILEPATH")
 
 contentTypeOptP :: Parser ContentType
 contentTypeOptP =
