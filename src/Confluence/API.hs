@@ -3,8 +3,9 @@
 module Confluence.API (
     -- * Content
     createContent,
-    getContent,
+    getContentById,
     getContentByTitle,
+    getContents,
 
     -- * Spaces
     getSpaces,
@@ -19,6 +20,7 @@ import Data.Aeson (object, (.=))
 import Data.Aeson.Key qualified as AesonKey
 import Data.Text qualified as T
 import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
+import Prelude hiding (getContents, id)
 
 --------------------------------------------------------------------------------
 -- Content
@@ -47,12 +49,11 @@ createContent key title repr status ty body =
     representationObj =
         object [AesonKey.fromText (toText repr) .= ContentBodyCreate body repr]
 
--- | @getContent m_spaceKey m_title start limit@ returns a list of pages
--- filtered by the space key and title, if given. Title filter uses exact match
--- and is case sensitive.
-getContent ::
+-- | Returns a list of pages filtered by the space key and title, if given.
+-- Title filter uses exact match and is case sensitive.
+getContents ::
     Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> ConfluenceM ContentArray
-getContent m_key m_title start limit =
+getContents m_key m_title start limit =
     getApi
         "content"
         [ ("spaceKey", toQueryValue m_key)
@@ -62,9 +63,12 @@ getContent m_key m_title start limit =
         , ("expand", Just "space")
         ]
 
+getContentById :: T.Text -> ConfluenceM (Maybe Content)
+getContentById id = getApi ("content/" <> T.unpack id) []
+
 getContentByTitle :: SpaceKey -> T.Text -> ConfluenceM (Maybe Content)
 getContentByTitle key title = do
-    contentArray <- getContent (Just key) (Just title) 0 1
+    contentArray <- getContents (Just key) (Just title) 0 1
     pure $ headMaybe contentArray.results
 
 --------------------------------------------------------------------------------

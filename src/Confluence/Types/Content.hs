@@ -3,6 +3,7 @@
 module Confluence.Types.Content (
     ContentArray,
     Content (..),
+    ContentIdentification(..),
     ContentType (..),
     ContentStatus (..),
     ContentBodyContainer (..),
@@ -13,7 +14,7 @@ module Confluence.Types.Content (
 import Confluence.TextConversions
 import Confluence.Types.Common (GenericLinks)
 import Confluence.Types.ResultArray (ResultArray)
-import Confluence.Types.Space (Space)
+import Confluence.Types.Space (Space, SpaceKey)
 import Data.Aeson (
     FromJSON (parseJSON),
     Object,
@@ -70,6 +71,11 @@ instance FromJSON Content where
             <*> (v .: "space")
             <*> (v .: "_expandable")
             <*> (v .: "_links")
+
+-- | Content on Confluence can be identified either by an integer ID, or by the
+-- space key and content title.
+data ContentIdentification = ContentId Text | ContentName SpaceKey Text
+    deriving (Eq)
 
 data ContentType
     = PageContent

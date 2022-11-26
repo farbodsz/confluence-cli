@@ -35,7 +35,7 @@ runCommand cfg (ContentCreateCommand opts) =
         opts.contentType
         opts.filePath
 runCommand cfg (ContentInfoCommand opts) =
-    CLI.getContentInfo cfg opts.space opts.title
+    CLI.getContentInfo cfg opts.ident
 runCommand cfg (ContentListCommand opts) =
     CLI.listContent
         cfg

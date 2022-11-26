@@ -22,6 +22,7 @@ import Confluence.TextConversions (ToText (toText))
 import Confluence.Types
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
+import Prelude hiding (id)
 
 --------------------------------------------------------------------------------
 -- Content
@@ -50,13 +51,19 @@ createContent cfg key title repr status ty path = do
     withEither result $ pure . pure ()
 
 -- | Returns information about a single content.
-getContentInfo :: Config -> SpaceKey -> T.Text -> IO ()
-getContentInfo cfg key title = do
-    result <- runConfluence cfg $ API.getContentByTitle key title
+getContentInfo :: Config -> ContentIdentification -> IO ()
+getContentInfo cfg ident = do
+    result <- runConfluence cfg $ case ident of
+        ContentId id -> API.getContentById id
+        ContentName key title -> API.getContentByTitle key title
+
     withEither result $ \case
         Nothing ->
-            T.putStrLn $
-                "No content found: '" <> key <> "' -> '" <> title <> "'"
+            T.putStrLn $ case ident of
+                ContentId id ->
+                    "No content found with ID: '" <> id <> "'"
+                ContentName key title ->
+                    "No content found: '" <> key <> "' -> '" <> title <> "'"
         Just content -> do
             printTable $
                 defaultTable
@@ -73,7 +80,7 @@ getContentInfo cfg key title = do
 -- | Lists the content satisfying the given filters.
 listContent :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()
 listContent cfg m_key m_title start limit = do
-    result <- runConfluence cfg $ API.getContent m_key m_title start limit
+    result <- runConfluence cfg $ API.getContents m_key m_title start limit
     withEither result $ \contentArray ->
         let pages = contentArray.results
             getSpaceKey = (.key) <$> (.space)

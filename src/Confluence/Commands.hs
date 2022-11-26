@@ -5,6 +5,7 @@ module Confluence.Commands (
     ConfluenceCmd (..),
     ContentCreateOpts (..),
     ContentInfoOpts (..),
+    ContentIdentification (..),
     ContentListOpts (..),
     SpacesListOpts (..),
 ) where
@@ -72,13 +73,16 @@ contentCreateP =
             <*> optContentStatusP
             <*> optContentRepresentationP
 
-data ContentInfoOpts = ContentInfoOpts {space :: SpaceKey, title :: T.Text}
+data ContentInfoOpts = ContentInfoOpts {ident :: ContentIdentification}
     deriving (Eq)
 
 contentInfoP :: Parser ConfluenceCmd
 contentInfoP =
     fmap ContentInfoCommand $
-        ContentInfoOpts <$> argSpaceKeyP <*> argContentTitleP
+        ContentInfoOpts <$> (contentIdP <|> contentNameP)
+  where
+    contentIdP = ContentId <$> optContentIdP
+    contentNameP = ContentName <$> argSpaceKeyP <*> argContentTitleP
 
 data ContentListOpts = ContentListOpts
     { space :: Maybe SpaceKey
@@ -111,6 +115,9 @@ argContentTitleP = strArgument (help "Content title" <> metavar "TITLE")
 
 --------------------------------------------------------------------------------
 -- Content options
+
+optContentIdP :: Parser T.Text
+optContentIdP = strOption (long "id" <> help "Content ID" <> metavar "ID")
 
 optSpaceKeyP :: Parser SpaceKey
 optSpaceKeyP =
