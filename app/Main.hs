@@ -30,6 +30,8 @@ runCommand cfg (ContentCreateCommand opts) =
         cfg
         opts.space
         opts.title
+        opts.representation
+        opts.status
         opts.contentType
         opts.filePath
 runCommand cfg (ContentListCommand opts) =

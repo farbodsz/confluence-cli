@@ -48,12 +48,13 @@ contentP =
         command "add" (info contentCreateP $ progDesc "Add content")
             <> command "list" (info contentListP $ progDesc "List content")
 
--- TODO: status, representation
 data ContentCreateOpts = ContentCreateOpts
     { space :: SpaceKey
     , title :: T.Text
-    , contentType :: ContentType
     , filePath :: FilePath
+    , contentType :: ContentType
+    , status :: ContentStatus
+    , representation :: ContentRepresentation
     }
     deriving (Eq)
 
@@ -63,8 +64,10 @@ contentCreateP =
         ContentCreateOpts
             <$> optSpaceKeyP
             <*> optContentTitleP
-            <*> optContentTypeP
             <*> strOption (long "path" <> metavar "FILEPATH")
+            <*> optContentTypeP
+            <*> optContentStatusP
+            <*> optContentRepresentationP
 
 optSpaceKeyP :: Parser SpaceKey
 optSpaceKeyP =
@@ -93,6 +96,28 @@ optContentTypeP =
             <> metavar "STRING"
             <> showDefault
             <> value PageContent
+        )
+
+optContentStatusP :: Parser ContentStatus
+optContentStatusP =
+    option
+        typeReader
+        ( long "representation"
+            <> help "Status of the new content"
+            <> metavar "STRING"
+            <> showDefault
+            <> value CurrentStatus
+        )
+
+optContentRepresentationP :: Parser ContentRepresentation
+optContentRepresentationP =
+    option
+        typeReader
+        ( long "representation"
+            <> help "Storage format of the content body"
+            <> metavar "STRING"
+            <> showDefault
+            <> value StorageRepresentation
         )
 
 data ContentListOpts = ContentListOpts

@@ -117,6 +117,9 @@ instance ToText ContentStatus where
     toText HistoricalStatus = "historical"
     toText DraftStatus = "draft"
 
+instance ToJSON ContentStatus where
+    toJSON = toJSONViaText
+
 -- Leaving out "_expandable" field as not needed yet.
 data ContentBodyContainer = ContentBodyContainer
     { view :: ContentBody
@@ -172,15 +175,18 @@ instance FromText ContentRepresentation where
 instance FromJSON ContentRepresentation where
     parseJSON = parseJSONViaText "ContentRepresentation"
 
+instance ToText ContentRepresentation where
+    toText ViewRepresentation = "view"
+    toText ExportViewRepresentation = "export_view"
+    toText StyledViewRepresentation = "styled_view"
+    toText StorageRepresentation = "storage"
+    toText EditorRepresentation = "editor"
+    toText Editor2Representation = "editor2"
+    toText AnonymousExportViewRepresentation = "anonymous_export_view"
+    toText WikiRepresentation = "wiki"
+    toText AtlasDocFormatRepresentation = "atlas_doc_format"
+
 instance ToJSON ContentRepresentation where
-    toJSON ViewRepresentation = "view"
-    toJSON ExportViewRepresentation = "export_view"
-    toJSON StyledViewRepresentation = "styled_view"
-    toJSON StorageRepresentation = "storage"
-    toJSON EditorRepresentation = "editor"
-    toJSON Editor2Representation = "editor2"
-    toJSON AnonymousExportViewRepresentation = "anonymous_export_view"
-    toJSON WikiRepresentation = "wiki"
-    toJSON AtlasDocFormatRepresentation = "atlas_doc_format"
+    toJSON = toJSONViaText
 
 --------------------------------------------------------------------------------

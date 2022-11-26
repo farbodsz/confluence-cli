@@ -11,34 +11,39 @@ module Confluence.API (
 
 import Confluence.API.Request
 import Confluence.Monad (ConfluenceM)
+import Confluence.TextConversions (toText)
 import Confluence.Types
 import Data.Aeson (object, (.=))
+import Data.Aeson.Key qualified as AesonKey
 import Data.Text qualified as T
 import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
 
 --------------------------------------------------------------------------------
 -- Content
 
--- | @createContent spaceKey title contentType body@ creates a page.
-createContent :: SpaceKey -> T.Text -> ContentType -> T.Text -> ConfluenceM ()
-createContent key title ty body =
+-- | Creates a page.
+createContent ::
+    SpaceKey ->
+    T.Text ->
+    ContentRepresentation ->
+    ContentStatus ->
+    ContentType ->
+    T.Text ->
+    ConfluenceM ()
+createContent key title repr status ty body =
     postApi
         "content"
         $ object
             [ "space" .= object ["key" .= key]
             , "title" .= title
             , "type" .= ty
+            , "status" .= status
             , "body" .= representationObj
             , "metadata" .= object ["properties" .= object []]
             ]
   where
-    -- TODO: figure out how to use ToJSONKey for this and let representation be
-    -- modifiable
     representationObj =
-        object
-            [ "storage"
-                .= ContentBodyCreate body StorageRepresentation
-            ]
+        object [AesonKey.fromText (toText repr) .= ContentBodyCreate body repr]
 
 -- | @getContent m_spaceKey m_title start limit@ returns a list of pages
 -- filtered by the space key and title, if given. Title filter uses exact match
