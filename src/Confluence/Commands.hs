@@ -4,6 +4,7 @@ module Confluence.Commands (
     cliArgs,
     ConfluenceCmd (..),
     ContentCreateOpts (..),
+    ContentInfoOpts (..),
     ContentListOpts (..),
     SpacesListOpts (..),
 ) where
@@ -20,6 +21,7 @@ import Paths_confluence_cli (version)
 
 data ConfluenceCmd
     = ContentCreateCommand ContentCreateOpts
+    | ContentInfoCommand ContentInfoOpts
     | ContentListCommand ContentListOpts
     | SpacesListCommand SpacesListOpts
     deriving (Eq)
@@ -46,6 +48,7 @@ contentP :: Parser ConfluenceCmd
 contentP =
     hsubparser $
         command "add" (info contentCreateP $ progDesc "Add content")
+            <> command "info" (info contentInfoP $ progDesc "Content info")
             <> command "list" (info contentListP $ progDesc "List content")
 
 data ContentCreateOpts = ContentCreateOpts
@@ -68,6 +71,46 @@ contentCreateP =
             <*> optContentTypeP
             <*> optContentStatusP
             <*> optContentRepresentationP
+
+data ContentInfoOpts = ContentInfoOpts {space :: SpaceKey, title :: T.Text}
+    deriving (Eq)
+
+contentInfoP :: Parser ConfluenceCmd
+contentInfoP =
+    fmap ContentInfoCommand $
+        ContentInfoOpts <$> argSpaceKeyP <*> argContentTitleP
+
+data ContentListOpts = ContentListOpts
+    { space :: Maybe SpaceKey
+    , title :: Maybe T.Text
+    , start :: Int
+    , limit :: Int
+    }
+    deriving (Eq)
+
+-- TODO: Only supports --type "page" for now (because title required for page
+-- type, date required for blogpost type)
+contentListP :: Parser ConfluenceCmd
+contentListP =
+    fmap ContentListCommand $
+        ContentListOpts
+            <$> optional optSpaceKeyP
+            <*> optional optContentTitleP
+            <*> optStartP
+            <*> optLimitP
+
+--------------------------------------------------------------------------------
+-- Content arguments
+
+argSpaceKeyP :: Parser SpaceKey
+argSpaceKeyP =
+    strArgument (help "Space that the content belongs to" <> metavar "SPACE")
+
+argContentTitleP :: Parser T.Text
+argContentTitleP = strArgument (help "Content title" <> metavar "TITLE")
+
+--------------------------------------------------------------------------------
+-- Content options
 
 optSpaceKeyP :: Parser SpaceKey
 optSpaceKeyP =
@@ -120,25 +163,6 @@ optContentRepresentationP =
             <> value StorageRepresentation
         )
 
-data ContentListOpts = ContentListOpts
-    { space :: Maybe SpaceKey
-    , title :: Maybe T.Text
-    , start :: Int
-    , limit :: Int
-    }
-    deriving (Eq)
-
--- TODO: Only supports --type "page" for now (because title required for page
--- type, date required for blogpost type)
-contentListP :: Parser ConfluenceCmd
-contentListP =
-    fmap ContentListCommand $
-        ContentListOpts
-            <$> optional optSpaceKeyP
-            <*> optional optContentTitleP
-            <*> optStartP
-            <*> optLimitP
-
 --------------------------------------------------------------------------------
 -- Spaces
 
@@ -161,6 +185,9 @@ spacesListP =
             <$> optStartP
             <*> optLimitP
             <*> optSpaceTypeP
+
+--------------------------------------------------------------------------------
+-- Space options
 
 optSpaceTypeP :: Parser (Maybe SpaceType)
 optSpaceTypeP =

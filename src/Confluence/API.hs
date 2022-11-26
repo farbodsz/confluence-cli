@@ -4,6 +4,7 @@ module Confluence.API (
     -- * Content
     createContent,
     getContent,
+    getContentByTitle,
 
     -- * Spaces
     getSpaces,
@@ -13,6 +14,7 @@ import Confluence.API.Request
 import Confluence.Monad (ConfluenceM)
 import Confluence.TextConversions (toText)
 import Confluence.Types
+import Confluence.Util (headMaybe)
 import Data.Aeson (object, (.=))
 import Data.Aeson.Key qualified as AesonKey
 import Data.Text qualified as T
@@ -59,6 +61,11 @@ getContent m_key m_title start limit =
         , ("limit", toQueryValue limit)
         , ("expand", Just "space")
         ]
+
+getContentByTitle :: SpaceKey -> T.Text -> ConfluenceM (Maybe Content)
+getContentByTitle key title = do
+    contentArray <- getContent (Just key) (Just title) 0 1
+    pure $ headMaybe contentArray.results
 
 --------------------------------------------------------------------------------
 -- Spaces

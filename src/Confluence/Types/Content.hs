@@ -88,11 +88,14 @@ instance FromText ContentType where
 instance FromJSON ContentType where
     parseJSON = parseJSONViaText "ContentType"
 
+instance ToText ContentType where
+    toText PageContent = "page"
+    toText BlogpostContent = "blogpost"
+    toText AttachmentContent = "attachment"
+    toText ContentContent = "content"
+
 instance ToJSON ContentType where
-    toJSON PageContent = "page"
-    toJSON BlogpostContent = "blogpost"
-    toJSON AttachmentContent = "attachment"
-    toJSON ContentContent = "content"
+    toJSON = toJSONViaText
 
 data ContentStatus
     = CurrentStatus

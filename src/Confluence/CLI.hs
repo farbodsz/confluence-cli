@@ -3,7 +3,8 @@
 module Confluence.CLI (
     -- * Content
     createContent,
-    getContent,
+    getContentInfo,
+    listContent,
 
     -- * Spaces
     getSpaces,
@@ -48,10 +49,30 @@ createContent cfg key title repr status ty path = do
                 body
     withEither result $ pure . pure ()
 
--- | @getContent cfg m_key m_title start limit@ lists the Confluence /pages/
--- satisfying the given filters.
-getContent :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()
-getContent cfg m_key m_title start limit = do
+-- | Returns information about a single content.
+getContentInfo :: Config -> SpaceKey -> T.Text -> IO ()
+getContentInfo cfg key title = do
+    result <- runConfluence cfg $ API.getContentByTitle key title
+    withEither result $ \case
+        Nothing ->
+            T.putStrLn $
+                "No content found: '" <> key <> "' -> '" <> title <> "'"
+        Just content -> do
+            printTable $
+                defaultTable
+                    [ ["ID", "SPACE", "TITLE", "TYPE", "STATUS"]
+                    ,
+                        [ content.id
+                        , content.space.key <> " (" <> content.space.name <> ")"
+                        , content.title
+                        , toText $ content.contentType
+                        , toText $ content.status
+                        ]
+                    ]
+
+-- | Lists the content satisfying the given filters.
+listContent :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()
+listContent cfg m_key m_title start limit = do
     result <- runConfluence cfg $ API.getContent m_key m_title start limit
     withEither result $ \contentArray ->
         let pages = contentArray.results

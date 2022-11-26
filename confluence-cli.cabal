@@ -42,6 +42,7 @@ library
       Confluence.Types.Instances
       Confluence.Types.ResultArray
       Confluence.Types.Space
+      Confluence.Util
   other-modules:
       Paths_confluence_cli
   hs-source-dirs:

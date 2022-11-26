@@ -7,7 +7,8 @@ Command line interface for the [Atlassian Confluence REST API](https://developer
 ## Features
 
 - `content` 
-  - `add` _(limited)_
+  - `add`
+  - `info`
   - `list` _(limited)_
 - `spaces`
   - `list` _(limited)_
