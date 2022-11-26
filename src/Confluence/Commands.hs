@@ -9,7 +9,7 @@ module Confluence.Commands (
     SpacesListOpts (..),
 ) where
 
-import Confluence.TextConversions (FromText (fromText))
+import Confluence.TextConversions (FromText (fromText), ToText (toText))
 import Confluence.Types
 import Data.Text qualified as T
 import Data.Version (showVersion)
@@ -137,7 +137,7 @@ optContentTypeP =
         ( long "type"
             <> help "Type of the new content, e.g. \"page\""
             <> metavar "STRING"
-            <> showDefault
+            <> showDefaultWith (T.unpack . toText)
             <> value PageContent
         )
 
@@ -145,10 +145,10 @@ optContentStatusP :: Parser ContentStatus
 optContentStatusP =
     option
         typeReader
-        ( long "representation"
+        ( long "status"
             <> help "Status of the new content"
             <> metavar "STRING"
-            <> showDefault
+            <> showDefaultWith (T.unpack . toText)
             <> value CurrentStatus
         )
 
@@ -159,7 +159,7 @@ optContentRepresentationP =
         ( long "representation"
             <> help "Storage format of the content body"
             <> metavar "STRING"
-            <> showDefault
+            <> showDefaultWith (T.unpack . toText)
             <> value StorageRepresentation
         )
 
