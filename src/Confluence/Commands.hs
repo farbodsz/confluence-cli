@@ -8,8 +8,8 @@ module Confluence.Commands (
     SpacesListOpts (..),
 ) where
 
+import Confluence.TextConversions (FromText (fromText))
 import Confluence.Types
-import Data.String (IsString)
 import Data.Text qualified as T
 import Data.Version (showVersion)
 import Options.Applicative
@@ -175,22 +175,7 @@ optLimitP =
 --------------------------------------------------------------------------------
 -- Option parsing for custom types
 
-class ReadOpt a where
-    readOpt :: (Eq s, IsString s) => s -> Maybe a
-
-typeReader :: ReadOpt a => ReadM a
-typeReader = maybeReader readOpt
-
-instance ReadOpt ContentType where
-    readOpt "page" = Just PageContent
-    readOpt "blogpost" = Just BlogpostContent
-    readOpt "attachment" = Just AttachmentContent
-    readOpt "content" = Just ContentContent
-    readOpt _ = Nothing
-
-instance ReadOpt SpaceType where
-    readOpt "global" = Just GlobalSpace
-    readOpt "personal" = Just PersonalSpace
-    readOpt _ = Nothing
+typeReader :: FromText a => ReadM a
+typeReader = maybeReader (fromText . T.pack)
 
 --------------------------------------------------------------------------------

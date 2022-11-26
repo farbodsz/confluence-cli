@@ -10,7 +10,7 @@ module Confluence.Types.Content (
     ContentRepresentation (..),
 ) where
 
-import Confluence.Display (Display (display))
+import Confluence.TextConversions
 import Confluence.Types.Common (GenericLinks)
 import Confluence.Types.ResultArray (ResultArray)
 import Confluence.Types.Space (Space)
@@ -19,11 +19,9 @@ import Data.Aeson (
     Object,
     ToJSON (toJSON),
     withObject,
-    withText,
     (.:),
  )
 import Data.Text (Text)
-import Data.Text qualified as T
 import GHC.Generics (Generic)
 
 --------------------------------------------------------------------------------
@@ -80,13 +78,15 @@ data ContentType
     | ContentContent
     deriving (Eq, Show)
 
+instance FromText ContentType where
+    fromText "page" = Just PageContent
+    fromText "blogpost" = Just BlogpostContent
+    fromText "attachment" = Just AttachmentContent
+    fromText "content" = Just ContentContent
+    fromText _ = Nothing
+
 instance FromJSON ContentType where
-    parseJSON = withText "ContentType" $ \case
-        "page" -> pure PageContent
-        "blogpost" -> pure BlogpostContent
-        "attachment" -> pure AttachmentContent
-        "content" -> pure ContentContent
-        t -> fail $ "Invalid ContentType '" <> T.unpack t <> "'"
+    parseJSON = parseJSONViaText "ContentType"
 
 instance ToJSON ContentType where
     toJSON PageContent = "page"
@@ -101,19 +101,21 @@ data ContentStatus
     | DraftStatus
     deriving (Eq, Show)
 
-instance Display ContentStatus where
-    display CurrentStatus = "current"
-    display DeletedStatus = "deleted"
-    display HistoricalStatus = "historial"
-    display DraftStatus = "draft"
+instance FromText ContentStatus where
+    fromText "current" = Just CurrentStatus
+    fromText "deleted" = Just DeletedStatus
+    fromText "historical" = Just HistoricalStatus
+    fromText "draft" = Just DraftStatus
+    fromText _ = Nothing
 
 instance FromJSON ContentStatus where
-    parseJSON = withText "ContentStatus" $ \case
-        "current" -> pure CurrentStatus
-        "deleted" -> pure DeletedStatus
-        "historical" -> pure HistoricalStatus
-        "draft" -> pure DraftStatus
-        t -> fail $ "Invalid ContentStatus '" <> T.unpack t <> "'"
+    parseJSON = parseJSONViaText "ContentStatus"
+
+instance ToText ContentStatus where
+    toText CurrentStatus = "current"
+    toText DeletedStatus = "deleted"
+    toText HistoricalStatus = "historical"
+    toText DraftStatus = "draft"
 
 -- Leaving out "_expandable" field as not needed yet.
 data ContentBodyContainer = ContentBodyContainer
@@ -155,18 +157,20 @@ data ContentRepresentation
     | AtlasDocFormatRepresentation
     deriving (Eq, Generic, Show)
 
+instance FromText ContentRepresentation where
+    fromText "view" = Just ViewRepresentation
+    fromText "export_view" = Just ExportViewRepresentation
+    fromText "styled_view" = Just StyledViewRepresentation
+    fromText "storage" = Just StorageRepresentation
+    fromText "editor" = Just EditorRepresentation
+    fromText "editor2" = Just Editor2Representation
+    fromText "anonymous_export_view" = Just AnonymousExportViewRepresentation
+    fromText "wiki" = Just WikiRepresentation
+    fromText "atlas_doc_format" = Just AtlasDocFormatRepresentation
+    fromText _ = Nothing
+
 instance FromJSON ContentRepresentation where
-    parseJSON = withText "ContentRepresentation" $ \case
-        "view" -> pure ViewRepresentation
-        "export_view" -> pure ExportViewRepresentation
-        "styled_view" -> pure StyledViewRepresentation
-        "storage" -> pure StorageRepresentation
-        "editor" -> pure EditorRepresentation
-        "editor2" -> pure Editor2Representation
-        "anonymous_export_view" -> pure AnonymousExportViewRepresentation
-        "wiki" -> pure WikiRepresentation
-        "atlas_doc_format" -> pure AtlasDocFormatRepresentation
-        t -> fail $ "Invalid ContentRepresentation '" <> T.unpack t <> "'"
+    parseJSON = parseJSONViaText "ContentRepresentation"
 
 instance ToJSON ContentRepresentation where
     toJSON ViewRepresentation = "view"

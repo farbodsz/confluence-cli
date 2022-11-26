@@ -12,7 +12,7 @@ module Confluence.Table (
     defaultTable,
 ) where
 
-import Confluence.Display
+import Confluence.TextConversions (ToText (toText))
 import Data.List (transpose)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
@@ -48,9 +48,9 @@ data Table = Table
     }
 
 data Column where
-    Column :: Display a => {meta :: ColMeta, items :: [a]} -> Column
+    Column :: ToText a => {meta :: ColMeta, items :: [a]} -> Column
 
-table :: Display a => T.Text -> [ColMeta] -> [[a]] -> Table
+table :: ToText a => T.Text -> [ColMeta] -> [[a]] -> Table
 table colSep metas xss = Table colSep $ uncurry Column <$> zip metas xss
 
 -- | @renderTable table@ produces a list of columns where each column is a list
@@ -64,7 +64,7 @@ renderTable (Table colSep cols) = T.intercalate colSep <$> transpose colTexts
         w = case meta.width of
             Fixed x -> x
             Expandable -> maximum (T.length <$> ts)
-        ts = display <$> xs
+        ts = toText <$> xs
 
 printTable :: Table -> IO ()
 printTable = mapM_ T.putStrLn . renderTable
@@ -79,16 +79,9 @@ defaultColSep :: T.Text
 defaultColSep = "  "
 
 -- | Table with default column metas and default column separator.
-defaultTable :: Display a => [[a]] -> Table
+defaultTable :: ToText a => [[a]] -> Table
 defaultTable xss = table defaultColSep metas xss
   where
     metas = replicate (length xss) defaultColMeta
-
--- -- | Table with default column metas and default column separator.
--- defaultTable :: Displayable a => [a] -> [[a]] -> Table
--- defaultTable colNames xss = table defaultColSep metas cols
---   where
---     cols  = uncurry (:) <$> zip colNames xss
---     metas = replicate (length xss) defaultColMeta
 
 ----------------------------------------------------------------------------------

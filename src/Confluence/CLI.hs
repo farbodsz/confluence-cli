@@ -11,13 +11,13 @@ module Confluence.CLI (
 
 import Confluence.API qualified as API
 import Confluence.Config (Config)
-import Confluence.Display
 import Confluence.Error (
     ResponseError,
     errorMsg,
  )
 import Confluence.Monad (runConfluence)
 import Confluence.Table
+import Confluence.TextConversions (ToText (toText))
 import Confluence.Types
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
@@ -44,10 +44,10 @@ getContent cfg m_key m_title start limit = do
             getSpaceKey = (.key) <$> (.space)
          in printTable $
                 defaultTable
-                    [ "ID" : displayF ((.id) <$> pages)
-                    , "STATUS" : displayF ((.status) <$> pages)
-                    , "SPACE" : displayF (getSpaceKey <$> pages)
-                    , "TITLE" : displayF ((.title) <$> pages)
+                    [ "ID" : toTextF ((.id) <$> pages)
+                    , "STATUS" : toTextF ((.status) <$> pages)
+                    , "SPACE" : toTextF (getSpaceKey <$> pages)
+                    , "TITLE" : toTextF ((.title) <$> pages)
                     ]
 
 --------------------------------------------------------------------------------
@@ -65,10 +65,10 @@ printSpaces arr =
     let spaces = arr.results
      in printTable $
             defaultTable
-                [ "ID" : (display . (.id) <$> spaces)
+                [ "ID" : (toText . (.id) <$> spaces)
                 , "NAME" : ((.name) <$> spaces)
                 , "KEY" : ((.key) <$> spaces)
-                , "TYPE" : (display . (.spaceType) <$> spaces)
+                , "TYPE" : (toText . (.spaceType) <$> spaces)
                 ]
 
 --------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ printSpaces arr =
 withEither :: Either ResponseError a -> (a -> IO ()) -> IO ()
 withEither e action = either (T.putStrLn . ("Error:  " <>) . errorMsg) action e
 
-displayF :: (Functor f, Display a) => f a -> f T.Text
-displayF = fmap display
+toTextF :: (Functor f, ToText a) => f a -> f T.Text
+toTextF = fmap toText
 
 --------------------------------------------------------------------------------

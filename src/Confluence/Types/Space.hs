@@ -7,7 +7,7 @@ module Confluence.Types.Space (
     SpaceArray,
 ) where
 
-import Confluence.Display
+import Confluence.TextConversions
 import Confluence.Types.Common
 import Confluence.Types.ResultArray (ResultArray)
 import Data.Aeson (
@@ -19,6 +19,7 @@ import Data.Aeson (
  )
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Encoding qualified as T
 import GHC.Generics (Generic)
 import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
 
@@ -66,9 +67,14 @@ type SpaceKey = Text
 data SpaceType = GlobalSpace | PersonalSpace
     deriving (Eq, Read, Show)
 
-instance Display SpaceType where
-    display GlobalSpace = "global"
-    display PersonalSpace = "personal"
+instance FromText SpaceType where
+    fromText "global" = Just GlobalSpace
+    fromText "personal" = Just PersonalSpace
+    fromText _ = Nothing
+
+instance ToText SpaceType where
+    toText GlobalSpace = "global"
+    toText PersonalSpace = "personal"
 
 instance FromJSON SpaceType where
     parseJSON = withText "SpaceType" $ \case
@@ -77,8 +83,7 @@ instance FromJSON SpaceType where
         _ -> fail "Invalid SpaceType"
 
 instance QueryValueLike SpaceType where
-    toQueryValue GlobalSpace = Just "global"
-    toQueryValue PersonalSpace = Just "personal"
+    toQueryValue = Just . T.encodeUtf8 . toText
 
 data SpaceDescriptions = SpaceDescriptions
     { plain :: SpaceDescription
