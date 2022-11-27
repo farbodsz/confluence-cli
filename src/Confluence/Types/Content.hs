@@ -16,6 +16,7 @@ import Confluence.TextConversions
 import Confluence.Types.Common (GenericLinks)
 import Confluence.Types.ResultArray (ResultArray)
 import Confluence.Types.Space (Space, SpaceKey)
+import Confluence.Types.Version (Version)
 import Data.Aeson (
     FromJSON (parseJSON),
     Object,
@@ -59,6 +60,7 @@ data Content = Content
     , status :: ContentStatus
     , title :: Text
     , space :: Space
+    , version :: Version
     , _expandable :: Object
     , _links :: GenericLinks
     }
@@ -72,6 +74,7 @@ instance FromJSON Content where
             <*> (v .: "status")
             <*> (v .: "title")
             <*> (v .: "space")
+            <*> (v .: "version")
             <*> (v .: "_expandable")
             <*> (v .: "_links")
 

@@ -42,6 +42,8 @@ library
       Confluence.Types.Instances
       Confluence.Types.ResultArray
       Confluence.Types.Space
+      Confluence.Types.User
+      Confluence.Types.Version
       Confluence.Util
   other-modules:
       Paths_confluence_cli

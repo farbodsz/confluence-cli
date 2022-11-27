@@ -79,13 +79,27 @@ getContentInfo cfg ident = do
         Just content -> do
             printTable $
                 defaultTable
-                    [ ["ID", "SPACE", "TITLE", "TYPE", "STATUS"]
+                    [
+                        [ "ID"
+                        , "SPACE"
+                        , "TITLE"
+                        , "TYPE"
+                        , "STATUS"
+                        , "LAST MODIFIED"
+                        , "VERSION"
+                        ]
                     ,
                         [ content.id
                         , content.space.key <> " (" <> content.space.name <> ")"
                         , content.title
                         , toText $ content.contentType
                         , toText $ content.status
+                        , toText $
+                            content.version.by.displayName
+                                <> " ("
+                                <> content.version.by.username
+                                <> ")"
+                        , toText $ content.version.number
                         ]
                     ]
 
