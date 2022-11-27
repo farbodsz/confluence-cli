@@ -6,6 +6,7 @@ module Confluence.CLI (
     deleteContent,
     getContentInfo,
     listContent,
+    updateContent,
 
     -- * Spaces
     getSpaces,
@@ -22,6 +23,8 @@ import Confluence.Table
 import Confluence.TextConversions (ToText (toText))
 import Confluence.Types
 import Control.Monad.Extra (whenM)
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Data.Maybe (fromMaybe)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
 import System.IO (hFlush, stdout)
@@ -117,6 +120,38 @@ listContent cfg m_key m_title start limit = do
                     , "SPACE" : toTextF (getSpaceKey <$> pages)
                     , "TITLE" : toTextF ((.title) <$> pages)
                     ]
+
+-- | Update content modifies some metadata or body of the content with the given
+-- ID.
+updateContent ::
+    Config ->
+    ContentId ->
+    Maybe T.Text ->
+    ContentType ->
+    Maybe ContentStatus ->
+    ContentRepresentation ->
+    Maybe FilePath ->
+    IO ()
+updateContent cfg id new_title new_ty new_status new_repr m_path = do
+    new_body <- traverse T.readFile m_path
+    result <- runConfluence cfg $ do
+        curr_content <- API.getContentById id
+        case curr_content of
+            Nothing ->
+                liftIO . T.putStrLn $
+                    "Unable to find existing content with ID: " <> id
+            Just content ->
+                let new_version = content.version.number + 1
+                    new_title' = fromMaybe content.title new_title
+                 in API.updateContent
+                        id
+                        new_version
+                        new_title'
+                        new_ty
+                        new_status
+                        new_repr
+                        new_body
+    withEither result $ pure . pure ()
 
 --------------------------------------------------------------------------------
 -- Spaces

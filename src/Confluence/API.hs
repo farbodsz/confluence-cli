@@ -7,6 +7,7 @@ module Confluence.API (
     getContentById,
     getContentByTitle,
     getContents,
+    updateContent,
 
     -- * Spaces
     getSpaces,
@@ -17,7 +18,7 @@ import Confluence.Monad (ConfluenceM)
 import Confluence.TextConversions (toText)
 import Confluence.Types
 import Confluence.Util (headMaybe)
-import Data.Aeson (object, (.=))
+import Data.Aeson (Value, object, (.=))
 import Data.Aeson.Key qualified as AesonKey
 import Data.Text qualified as T
 import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
@@ -43,12 +44,15 @@ createContent key title repr status ty body =
             , "title" .= title
             , "type" .= ty
             , "status" .= status
-            , "body" .= representationObj
+            , "body" .= mkBodyObject repr body
             , "metadata" .= object ["properties" .= object []]
             ]
-  where
-    representationObj =
-        object [AesonKey.fromText (toText repr) .= ContentBodyCreate body repr]
+
+mkBodyObject :: ContentRepresentation -> T.Text -> Value
+mkBodyObject repr body =
+    object
+        [ AesonKey.fromText (toText repr) .= ContentBodyCreate body repr
+        ]
 
 deleteContent :: ContentId -> Bool -> ConfluenceM ()
 deleteContent id purge =
@@ -67,7 +71,7 @@ getContents m_key m_title start limit =
         , ("title", toQueryValue m_title)
         , ("start", toQueryValue start)
         , ("limit", toQueryValue limit)
-        , ("expand", Just "space")
+        , ("expand", toQueryValue @[T.Text] ["space", "version"])
         ]
 
 getContentById :: ContentId -> ConfluenceM (Maybe Content)
@@ -77,6 +81,32 @@ getContentByTitle :: SpaceKey -> T.Text -> ConfluenceM (Maybe Content)
 getContentByTitle key title = do
     contentArray <- getContents (Just key) (Just title) 0 1
     pure $ headMaybe contentArray.results
+
+updateContent ::
+    ContentId ->
+    Int ->
+    T.Text ->
+    ContentType ->
+    Maybe ContentStatus ->
+    ContentRepresentation ->
+    Maybe T.Text ->
+    ConfluenceM ()
+updateContent id new_version new_title new_ty new_status new_repr new_body =
+    putApi ("content/" <> T.unpack id) $
+        object $ case new_body of
+            Nothing ->
+                [ "version" .= object ["number" .= new_version]
+                , "type" .= new_ty
+                , "title" .= new_title
+                , "status" .= new_status
+                ]
+            Just b ->
+                [ "version" .= object ["number" .= new_version]
+                , "type" .= new_ty
+                , "title" .= new_title
+                , "status" .= new_status
+                , "body" .= mkBodyObject new_repr b
+                ]
 
 --------------------------------------------------------------------------------
 -- Spaces

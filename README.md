@@ -11,5 +11,6 @@ Command line interface for the [Atlassian Confluence REST API](https://developer
   - `info`
   - `list` _(limited)_
   - `rm`
+  - `update`
 - `spaces`
   - `list` _(limited)_

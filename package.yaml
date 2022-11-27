@@ -33,6 +33,7 @@ default-extensions:
   - OverloadedRecordDot
   - OverloadedStrings
   - RecordWildCards
+  - TypeApplications
 
 ghc-options:
   - -Wall

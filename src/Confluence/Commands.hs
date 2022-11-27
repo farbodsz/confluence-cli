@@ -11,6 +11,7 @@ module Confluence.Commands (
     ContentInfoOpts (..),
     ContentIdentification (..),
     ContentListOpts (..),
+    ContentUpdateOpts (..),
 
     -- * Spaces command options
     SpacesListOpts (..),
@@ -31,6 +32,7 @@ data ConfluenceCmd
     | ContentDeleteCommand ContentDeleteOpts
     | ContentInfoCommand ContentInfoOpts
     | ContentListCommand ContentListOpts
+    | ContentUpdateCommand ContentUpdateOpts
     | SpacesListCommand SpacesListOpts
     deriving (Eq)
 
@@ -59,6 +61,7 @@ contentP =
             <> command "info" (info contentInfoP $ progDesc "Content info")
             <> command "list" (info contentListP $ progDesc "List content")
             <> command "rm" (info contentDeleteP $ progDesc "Delete content")
+            <> command "update" (info contentUpdateP $ progDesc "Update content")
 
 data ContentCreateOpts = ContentCreateOpts
     { space :: SpaceKey
@@ -76,7 +79,7 @@ contentCreateP =
         ContentCreateOpts
             <$> optSpaceKeyP
             <*> optContentTitleP
-            <*> strOption (long "path" <> metavar "FILEPATH")
+            <*> optFilePathP
             <*> optContentTypeP
             <*> optContentStatusP
             <*> optContentRepresentationP
@@ -90,7 +93,7 @@ data ContentDeleteOpts = ContentDeleteOpts
 contentDeleteP :: Parser ConfluenceCmd
 contentDeleteP =
     fmap ContentDeleteCommand $
-        ContentDeleteOpts <$> argContentId <*> flagContentPurgeP
+        ContentDeleteOpts <$> argContentIdP <*> flagContentPurgeP
 
 data ContentInfoOpts = ContentInfoOpts {ident :: ContentIdentification}
     deriving (Eq)
@@ -122,11 +125,32 @@ contentListP =
             <*> optStartP
             <*> optLimitP
 
+data ContentUpdateOpts = ContentUpdateOpts
+    { id :: ContentId
+    , newTitle :: Maybe T.Text
+    , newType :: ContentType
+    , newStatus :: Maybe ContentStatus
+    , newRepresentation :: ContentRepresentation
+    , newBodyFilePath :: Maybe FilePath
+    }
+    deriving (Eq)
+
+contentUpdateP :: Parser ConfluenceCmd
+contentUpdateP =
+    fmap ContentUpdateCommand $
+        ContentUpdateOpts
+            <$> argContentIdP
+            <*> optional optContentTitleP
+            <*> optContentTypeP
+            <*> optional optContentStatusP
+            <*> optContentRepresentationP
+            <*> optional optFilePathP
+
 --------------------------------------------------------------------------------
 -- Content arguments
 
-argContentId :: Parser ContentId
-argContentId = strArgument (help "Content ID" <> metavar "ID")
+argContentIdP :: Parser ContentId
+argContentIdP = strArgument (help "Content ID" <> metavar "ID")
 
 argSpaceKeyP :: Parser SpaceKey
 argSpaceKeyP =
@@ -262,6 +286,14 @@ optLimitP =
             <> showDefault
             <> value 25
             <> metavar "INT"
+        )
+
+optFilePathP :: Parser FilePath
+optFilePathP =
+    strOption
+        ( long "path"
+            <> metavar "FILEPATH"
+            <> help "Path to input file"
         )
 
 --------------------------------------------------------------------------------

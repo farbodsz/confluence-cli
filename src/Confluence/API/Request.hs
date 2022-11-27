@@ -4,6 +4,7 @@ module Confluence.API.Request (
     getApi,
     deleteApi,
     postApi,
+    putApi,
 ) where
 
 import Confluence.Config (Config (..))
@@ -12,11 +13,7 @@ import Confluence.Monad (ConfluenceM)
 import Control.Monad.Except (liftEither)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Reader (MonadReader (ask))
-import Data.Aeson (
-    FromJSON,
-    ToJSON,
-    decode,
- )
+import Data.Aeson (FromJSON, ToJSON, decode)
 import Data.ByteString.Lazy qualified as LB
 import Data.Either.Extra (maybeToEither)
 import Data.Text qualified as T
@@ -88,6 +85,14 @@ postApi path payload = do
     cfg <- ask
     doRequest $
         setRequestMethod "POST" $
+            setRequestBodyJSON payload $
+                baseRequest cfg path
+
+putApi :: (FromJSON a, ToJSON b) => Endpoint -> b -> ConfluenceM a
+putApi path payload = do
+    cfg <- ask
+    doRequest $
+        setRequestMethod "PUT" $
             setRequestBodyJSON payload $
                 baseRequest cfg path
 
