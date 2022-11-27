@@ -3,7 +3,8 @@
 module Confluence.Types.Content (
     ContentArray,
     Content (..),
-    ContentIdentification(..),
+    ContentId,
+    ContentIdentification (..),
     ContentType (..),
     ContentStatus (..),
     ContentBodyContainer (..),
@@ -31,6 +32,8 @@ type ContentArray = ResultArray Content
 
 --------------------------------------------------------------------------------
 
+type ContentId = Text
+
 -- We leave out these fields from Content, as we don't care about them for now:
 --
 -- Note: some of these depend on what "expandable" properties are set in the get
@@ -51,7 +54,7 @@ type ContentArray = ResultArray Content
 --   * extensions
 --
 data Content = Content
-    { id :: Text
+    { id :: ContentId
     , contentType :: ContentType
     , status :: ContentStatus
     , title :: Text
@@ -74,7 +77,7 @@ instance FromJSON Content where
 
 -- | Content on Confluence can be identified either by an integer ID, or by the
 -- space key and content title.
-data ContentIdentification = ContentId Text | ContentName SpaceKey Text
+data ContentIdentification = ContentId ContentId | ContentName SpaceKey Text
     deriving (Eq)
 
 data ContentType

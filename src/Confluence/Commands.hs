@@ -116,7 +116,7 @@ argContentTitleP = strArgument (help "Content title" <> metavar "TITLE")
 --------------------------------------------------------------------------------
 -- Content options
 
-optContentIdP :: Parser T.Text
+optContentIdP :: Parser ContentId
 optContentIdP = strOption (long "id" <> help "Content ID" <> metavar "ID")
 
 optSpaceKeyP :: Parser SpaceKey

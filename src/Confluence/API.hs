@@ -63,7 +63,7 @@ getContents m_key m_title start limit =
         , ("expand", Just "space")
         ]
 
-getContentById :: T.Text -> ConfluenceM (Maybe Content)
+getContentById :: ContentId -> ConfluenceM (Maybe Content)
 getContentById id = getApi ("content/" <> T.unpack id) []
 
 getContentByTitle :: SpaceKey -> T.Text -> ConfluenceM (Maybe Content)
