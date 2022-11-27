@@ -33,7 +33,9 @@ runCommand cfg (ContentCreateCommand opts) =
         opts.representation
         opts.status
         opts.contentType
-        opts.filePath
+        opts.filePath 
+runCommand cfg (ContentDeleteCommand opts) = 
+    CLI.deleteContent cfg opts.id opts.purge
 runCommand cfg (ContentInfoCommand opts) =
     CLI.getContentInfo cfg opts.ident
 runCommand cfg (ContentListCommand opts) =

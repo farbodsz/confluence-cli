@@ -3,6 +3,7 @@
 module Confluence.API (
     -- * Content
     createContent,
+    deleteContent,
     getContentById,
     getContentByTitle,
     getContents,
@@ -48,6 +49,12 @@ createContent key title repr status ty body =
   where
     representationObj =
         object [AesonKey.fromText (toText repr) .= ContentBodyCreate body repr]
+
+deleteContent :: ContentId -> Bool -> ConfluenceM ()
+deleteContent id purge =
+    deleteApi
+        ("content/" <> T.unpack id)
+        [("status", toQueryValue (toText TrashedStatus)) | purge]
 
 -- | Returns a list of pages filtered by the space key and title, if given.
 -- Title filter uses exact match and is case sensitive.

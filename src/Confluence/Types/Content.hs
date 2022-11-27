@@ -109,6 +109,7 @@ instance ToJSON ContentType where
 data ContentStatus
     = CurrentStatus
     | DeletedStatus
+    | TrashedStatus
     | HistoricalStatus
     | DraftStatus
     deriving (Eq, Show)
@@ -116,6 +117,7 @@ data ContentStatus
 instance FromText ContentStatus where
     fromText "current" = Just CurrentStatus
     fromText "deleted" = Just DeletedStatus
+    fromText "trashed" = Just TrashedStatus
     fromText "historical" = Just HistoricalStatus
     fromText "draft" = Just DraftStatus
     fromText _ = Nothing
@@ -126,6 +128,7 @@ instance FromJSON ContentStatus where
 instance ToText ContentStatus where
     toText CurrentStatus = "current"
     toText DeletedStatus = "deleted"
+    toText TrashedStatus = "trashed"
     toText HistoricalStatus = "historical"
     toText DraftStatus = "draft"
 

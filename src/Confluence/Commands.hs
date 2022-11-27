@@ -1,12 +1,18 @@
 --------------------------------------------------------------------------------
 
 module Confluence.Commands (
+    -- * Root-level commands
     cliArgs,
     ConfluenceCmd (..),
+
+    -- * Content command options
     ContentCreateOpts (..),
+    ContentDeleteOpts (..),
     ContentInfoOpts (..),
     ContentIdentification (..),
     ContentListOpts (..),
+
+    -- * Spaces command options
     SpacesListOpts (..),
 ) where
 
@@ -22,6 +28,7 @@ import Paths_confluence_cli (version)
 
 data ConfluenceCmd
     = ContentCreateCommand ContentCreateOpts
+    | ContentDeleteCommand ContentDeleteOpts
     | ContentInfoCommand ContentInfoOpts
     | ContentListCommand ContentListOpts
     | SpacesListCommand SpacesListOpts
@@ -51,6 +58,7 @@ contentP =
         command "add" (info contentCreateP $ progDesc "Add content")
             <> command "info" (info contentInfoP $ progDesc "Content info")
             <> command "list" (info contentListP $ progDesc "List content")
+            <> command "rm" (info contentDeleteP $ progDesc "Delete content")
 
 data ContentCreateOpts = ContentCreateOpts
     { space :: SpaceKey
@@ -72,6 +80,17 @@ contentCreateP =
             <*> optContentTypeP
             <*> optContentStatusP
             <*> optContentRepresentationP
+
+data ContentDeleteOpts = ContentDeleteOpts
+    { id :: ContentId
+    , purge :: Bool
+    }
+    deriving (Eq)
+
+contentDeleteP :: Parser ConfluenceCmd
+contentDeleteP =
+    fmap ContentDeleteCommand $
+        ContentDeleteOpts <$> argContentId <*> flagContentPurgeP
 
 data ContentInfoOpts = ContentInfoOpts {ident :: ContentIdentification}
     deriving (Eq)
@@ -105,6 +124,9 @@ contentListP =
 
 --------------------------------------------------------------------------------
 -- Content arguments
+
+argContentId :: Parser ContentId
+argContentId = strArgument (help "Content ID" <> metavar "ID")
 
 argSpaceKeyP :: Parser SpaceKey
 argSpaceKeyP =
@@ -168,6 +190,17 @@ optContentRepresentationP =
             <> metavar "STRING"
             <> showDefaultWith (T.unpack . toText)
             <> value StorageRepresentation
+        )
+
+flagContentPurgeP :: Parser Bool
+flagContentPurgeP =
+    switch
+        ( long "purge"
+            <> help
+                "If a content's type is `page` or `blogpost` and it's already\
+                \ `trashed`, then set this flag to purge it from the trash and\
+                \ delete permanently. Comments or attachments are deleted\
+                \ permanently regardless of whether this flag is set."
         )
 
 --------------------------------------------------------------------------------

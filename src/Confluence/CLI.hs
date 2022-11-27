@@ -3,6 +3,7 @@
 module Confluence.CLI (
     -- * Content
     createContent,
+    deleteContent,
     getContentInfo,
     listContent,
 
@@ -20,8 +21,10 @@ import Confluence.Monad (runConfluence)
 import Confluence.Table
 import Confluence.TextConversions (ToText (toText))
 import Confluence.Types
+import Control.Monad.Extra (whenM)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
+import System.IO (hFlush, stdout)
 import Prelude hiding (id)
 
 --------------------------------------------------------------------------------
@@ -49,6 +52,15 @@ createContent cfg key title repr status ty path = do
                 ty
                 body
     withEither result $ pure . pure ()
+
+deleteContent :: Config -> ContentId -> Bool -> IO ()
+deleteContent cfg id purge = whenM hasUserConfirmed $ do
+    result <- runConfluence cfg $ API.deleteContent id purge
+    withEither result $ pure . pure ()
+  where
+    hasUserConfirmed
+        | purge = confirm "Are you sure you want to purge this content?"
+        | otherwise = pure True
 
 -- | Returns information about a single content.
 getContentInfo :: Config -> ContentIdentification -> IO ()
@@ -123,5 +135,12 @@ withEither e action = either (T.putStrLn . ("Error:  " <>) . errorMsg) action e
 
 toTextF :: (Functor f, ToText a) => f a -> f T.Text
 toTextF = fmap toText
+
+confirm :: T.Text -> IO Bool
+confirm msg = do
+    T.putStr $ msg <> " [Y/n]: "
+    hFlush stdout
+    ans <- T.getLine
+    pure $ T.toLower ans == "y"
 
 --------------------------------------------------------------------------------

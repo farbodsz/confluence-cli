@@ -2,6 +2,7 @@
 
 module Confluence.API.Request (
     getApi,
+    deleteApi,
     postApi,
 ) where
 
@@ -48,6 +49,8 @@ baseRequest cfg path =
   where
     fullPath = T.pack $ "/rest/api" </> path
 
+-- | @parseResponse@ attempts to parse the HTTP response bytestring into a JSON
+-- type.
 parseResponse :: FromJSON a => Response LB.ByteString -> Either ResponseError a
 parseResponse resp =
     let body = getResponseBody resp
@@ -55,25 +58,37 @@ parseResponse resp =
             200 -> maybeToEither (ResponseDecodeError body) . decode $ body
             code -> Left $ HttpError code
 
+-- | Helper function which makes the HTTP request, processes, and returns its
+-- response.
+doRequest :: FromJSON a => Request -> ConfluenceM a
+doRequest req = do
+    resp <- liftIO $ httpLBS req
+    liftEither $ parseResponse resp
+
+--------------------------------------------------------------------------------
+
 getApi :: FromJSON a => Endpoint -> Query -> ConfluenceM a
 getApi path query = do
     cfg <- ask
-    let request =
-            setRequestMethod "GET" $
-                setRequestQueryString query $
-                    baseRequest cfg path
+    doRequest $
+        setRequestMethod "GET" $
+            setRequestQueryString query $
+                baseRequest cfg path
 
-    resp <- liftIO $ httpLBS request
-    liftEither $ parseResponse resp
+deleteApi :: FromJSON a => Endpoint -> Query -> ConfluenceM a
+deleteApi path query = do
+    cfg <- ask
+    doRequest $
+        setRequestMethod "DELETE" $
+            setRequestQueryString query $
+                baseRequest cfg path
 
 postApi :: (FromJSON a, ToJSON b) => Endpoint -> b -> ConfluenceM a
 postApi path payload = do
     cfg <- ask
-    let request =
-            setRequestMethod "POST" $
-                setRequestBodyJSON payload $
-                    baseRequest cfg path
-    resp <- liftIO $ httpLBS request
-    liftEither $ parseResponse resp
+    doRequest $
+        setRequestMethod "POST" $
+            setRequestBodyJSON payload $
+                baseRequest cfg path
 
 --------------------------------------------------------------------------------
