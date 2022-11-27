@@ -13,6 +13,7 @@ import Data.Either.Extra (maybeToEither)
 import Data.Text qualified as T
 import Data.Text.Lazy qualified as TL
 import Data.Text.Lazy.Encoding qualified as TLE
+import GHC.Generics (Generic)
 import System.Directory (
     XdgDirectory (XdgConfig),
     doesFileExist,
@@ -24,18 +25,13 @@ import System.FilePath ((</>))
 
 data Config = Config
     { email :: T.Text
-    , apiToken :: T.Text
+    , token :: T.Text
     , url :: T.Text
     }
-    deriving (Show)
+    deriving (Generic, Show)
 
-instance FromJSON Config where
-    parseJSON = withObject "Config" $ \v ->
-        Config <$> v .: "email" <*> v .: "token" <*> v .: "url"
-
-instance ToJSON Config where
-    toJSON cfg =
-        object ["email" .= cfg.email, "token" .= cfg.apiToken, "url" .= cfg.url]
+instance FromJSON Config
+instance ToJSON Config
 
 -------------------------------------------------------------------------------
 

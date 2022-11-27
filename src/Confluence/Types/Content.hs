@@ -16,14 +16,9 @@ import Confluence.TextConversions
 import Confluence.Types.Common (GenericLinks)
 import Confluence.Types.ResultArray (ResultArray)
 import Confluence.Types.Space (Space, SpaceKey)
+import Confluence.Types.Util qualified as Util
 import Confluence.Types.Version (Version)
-import Data.Aeson (
-    FromJSON (parseJSON),
-    Object,
-    ToJSON (toJSON),
-    withObject,
-    (.:),
- )
+import Data.Aeson (FromJSON (parseJSON), Object, ToJSON (toJSON))
 import Data.Text (Text)
 import GHC.Generics (Generic)
 
@@ -64,19 +59,10 @@ data Content = Content
     , _expandable :: Object
     , _links :: GenericLinks
     }
-    deriving (Show)
+    deriving (Generic, Show)
 
 instance FromJSON Content where
-    parseJSON = withObject "Content" $ \v ->
-        Content
-            <$> (v .: "id")
-            <*> (v .: "type")
-            <*> (v .: "status")
-            <*> (v .: "title")
-            <*> (v .: "space")
-            <*> (v .: "version")
-            <*> (v .: "_expandable")
-            <*> (v .: "_links")
+    parseJSON = Util.genericParseJSONWithRename "contentType" "type"
 
 -- | Content on Confluence can be identified either by an integer ID, or by the
 -- space key and content title.

@@ -40,7 +40,7 @@ type Endpoint = String
 -- | Creates a request with headers and host set based on user configuration.
 baseRequest :: Config -> Endpoint -> Request
 baseRequest cfg path =
-    setRequestBearerAuth (TE.encodeUtf8 cfg.apiToken) $
+    setRequestBearerAuth (TE.encodeUtf8 cfg.token) $
         setRequestHost (TE.encodeUtf8 cfg.url) $
             setRequestPath (TE.encodeUtf8 fullPath) defaultRequest
   where

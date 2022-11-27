@@ -10,13 +10,8 @@ module Confluence.Types.Space (
 import Confluence.TextConversions
 import Confluence.Types.Common
 import Confluence.Types.ResultArray (ResultArray)
-import Data.Aeson (
-    FromJSON (parseJSON),
-    Object,
-    withObject,
-    withText,
-    (.:),
- )
+import Confluence.Types.Util qualified as Util
+import Data.Aeson (FromJSON (parseJSON), Object, withText)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding qualified as T
@@ -50,17 +45,10 @@ data Space = Space
     , _links :: GenericLinks
     , _expandable :: Object
     }
-    deriving (Show)
+    deriving (Generic, Show)
 
 instance FromJSON Space where
-    parseJSON = withObject "Space" $ \v ->
-        Space
-            <$> (v .: "id")
-            <*> (v .: "key")
-            <*> (v .: "name")
-            <*> (v .: "type")
-            <*> (v .: "_links")
-            <*> (v .: "_expandable")
+    parseJSON = Util.genericParseJSONWithRename "spaceType" "type"
 
 type SpaceKey = Text
 

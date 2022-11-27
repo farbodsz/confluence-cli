@@ -7,8 +7,10 @@ module Confluence.Types.User (
 
 import Confluence.TextConversions (FromText (..), parseJSONViaText)
 import Confluence.Types.Common (GenericLinks)
-import Data.Aeson (FromJSON (parseJSON), Object, withObject, (.:))
+import Confluence.Types.Util qualified as Util
+import Data.Aeson (FromJSON (parseJSON), Object)
 import Data.Text (Text)
+import GHC.Generics (Generic)
 
 --------------------------------------------------------------------------------
 
@@ -37,16 +39,10 @@ data User = User
     , _expandable :: Object
     , _links :: GenericLinks
     }
-    deriving (Show)
+    deriving (Generic, Show)
 
 instance FromJSON User where
-    parseJSON = withObject "User" $ \v ->
-        User
-            <$> (v .: "type")
-            <*> (v .: "username")
-            <*> (v .: "displayName")
-            <*> (v .: "_expandable")
-            <*> (v .: "_links")
+    parseJSON = Util.genericParseJSONWithRename "userType" "type"
 
 data UserType
     = KnownUser

@@ -43,6 +43,7 @@ library
       Confluence.Types.ResultArray
       Confluence.Types.Space
       Confluence.Types.User
+      Confluence.Types.Util
       Confluence.Types.Version
       Confluence.Util
   other-modules:
