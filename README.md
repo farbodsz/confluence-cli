@@ -1,4 +1,4 @@
-<h1>Confluence CLI</h1>
+# Confluence CLI
 
 Command line interface for the [Atlassian Confluence REST API](https://developer.atlassian.com/cloud/confluence/rest/v1/intro/#about).
 
@@ -14,3 +14,25 @@ Command line interface for the [Atlassian Confluence REST API](https://developer
   - `update`
 - `spaces`
   - `list` _(limited)_
+
+## Installation
+
+### Building from source
+
+```sh
+$ stack install
+```
+
+### Static binary
+
+TODO
+
+## Resources
+
+### Documentation
+
+- [Atlassian: Confluence REST API](https://developer.atlassian.com/cloud/confluence/rest/v1/intro/#about)
+
+### Similar projects
+
+- [GitHub: atlassian-api/atlassian-python-api](https://github.com/atlassian-api/atlassian-python-api/)
