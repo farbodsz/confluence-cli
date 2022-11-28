@@ -23,6 +23,7 @@ dependencies:
   - mtl
   - optparse-applicative
   - text
+  - time
 
 default-extensions:
   - DeriveGeneric

@@ -27,6 +27,7 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Maybe (fromMaybe)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
+import Data.Time (ZonedTime (zonedTimeToLocalTime), defaultTimeLocale, formatTime)
 import System.IO (hFlush, stdout)
 import Prelude hiding (id)
 
@@ -88,7 +89,8 @@ getContentInfo cfg ident = do
                         , "TITLE"
                         , "TYPE"
                         , "STATUS"
-                        , "LAST MODIFIED"
+                        , "LAST MODIFIED BY"
+                        , "LAST MODIFIED AT"
                         , "VERSION"
                         ]
                     ,
@@ -102,9 +104,16 @@ getContentInfo cfg ident = do
                                 <> " ("
                                 <> content.version.by.username
                                 <> ")"
+                        , fmtWhen content.version.when
                         , toText $ content.version.number
                         ]
                     ]
+  where
+    fmtWhen :: ZonedTime -> T.Text
+    fmtWhen =
+        T.pack
+            . formatTime defaultTimeLocale "%d %b %Y at %R"
+            . zonedTimeToLocalTime
 
 -- | Lists the content satisfying the given filters.
 listContent :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()

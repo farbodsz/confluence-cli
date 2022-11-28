@@ -5,6 +5,7 @@ module Confluence.Types.Version (Version (..)) where
 import Confluence.Types.User (User)
 import Data.Aeson (FromJSON)
 import Data.Text (Text)
+import Data.Time (ZonedTime)
 import GHC.Generics (Generic)
 
 --------------------------------------------------------------------------------
@@ -24,7 +25,7 @@ import GHC.Generics (Generic)
 --   * syncRevSource
 data Version = Version
     { by :: User
-    , when :: Text -- TODO: proper date time
+    , when :: ZonedTime
     , message :: Text
     , number :: Int
     , minorEdit :: Bool
