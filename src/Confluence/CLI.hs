@@ -14,10 +14,7 @@ module Confluence.CLI (
 
 import Confluence.API qualified as API
 import Confluence.Config (Config)
-import Confluence.Error (
-    ResponseError,
-    errorMsg,
- )
+import Confluence.Error (ResponseError, errorMsg)
 import Confluence.Monad (runConfluence)
 import Confluence.Table
 import Confluence.TextConversions (ToText (toText))
@@ -27,7 +24,11 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Maybe (fromMaybe)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
-import Data.Time (ZonedTime (zonedTimeToLocalTime), defaultTimeLocale, formatTime)
+import Data.Time (
+    ZonedTime (zonedTimeToLocalTime),
+    defaultTimeLocale,
+    formatTime,
+ )
 import System.IO (hFlush, stdout)
 import Prelude hiding (id)
 
@@ -83,6 +84,7 @@ getContentInfo cfg ident = do
         Just content -> do
             printTable $
                 defaultTable
+                    []
                     [
                         [ "ID"
                         , "SPACE"
@@ -124,10 +126,11 @@ listContent cfg m_key m_title start limit = do
             getSpaceKey = (.key) <$> (.space)
          in printTable $
                 defaultTable
-                    [ "ID" : toTextF ((.id) <$> pages)
-                    , "STATUS" : toTextF ((.status) <$> pages)
-                    , "SPACE" : toTextF (getSpaceKey <$> pages)
-                    , "TITLE" : toTextF ((.title) <$> pages)
+                    ["ID", "STATUS", "SPACE", "TITLE"]
+                    [ toTextF ((.id) <$> pages)
+                    , toTextF ((.status) <$> pages)
+                    , toTextF (getSpaceKey <$> pages)
+                    , toTextF ((.title) <$> pages)
                     ]
 
 -- | Update content modifies some metadata or body of the content with the given
@@ -177,10 +180,11 @@ printSpaces arr =
     let spaces = arr.results
      in printTable $
             defaultTable
-                [ "ID" : (toText . (.id) <$> spaces)
-                , "NAME" : ((.name) <$> spaces)
-                , "KEY" : ((.key) <$> spaces)
-                , "TYPE" : (toText . (.spaceType) <$> spaces)
+                ["ID", "NAME", "KEY", "TYPE"]
+                [ toText . (.id) <$> spaces
+                , (.name) <$> spaces
+                , (.key) <$> spaces
+                , toText . (.spaceType) <$> spaces
                 ]
 
 --------------------------------------------------------------------------------
