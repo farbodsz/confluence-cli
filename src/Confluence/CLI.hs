@@ -16,7 +16,7 @@ import Confluence.API qualified as API
 import Confluence.Config (Config)
 import Confluence.Error (ResponseError, errorMsg)
 import Confluence.Monad (runConfluence)
-import Confluence.Table
+import Confluence.Output (TableFormat, printTable, record, table)
 import Confluence.TextConversions (ToText (toText))
 import Confluence.Types
 import Control.Monad.Extra (whenM)
@@ -68,8 +68,8 @@ deleteContent cfg id purge = whenM hasUserConfirmed $ do
         | otherwise = pure True
 
 -- | Returns information about a single content.
-getContentInfo :: Config -> ContentIdentification -> IO ()
-getContentInfo cfg ident = do
+getContentInfo :: Config -> ContentIdentification -> TableFormat -> IO ()
+getContentInfo cfg ident fmt = do
     result <- runConfluence cfg $ case ident of
         ContentId id -> API.getContentById id
         ContentName key title -> API.getContentByTitle key title
@@ -81,34 +81,31 @@ getContentInfo cfg ident = do
                     "No content found with ID: '" <> id <> "'"
                 ContentName key title ->
                     "No content found: '" <> key <> "' -> '" <> title <> "'"
-        Just content -> do
+        Just content ->
             printTable $
-                defaultTable
-                    []
-                    [
-                        [ "ID"
-                        , "SPACE"
-                        , "TITLE"
-                        , "TYPE"
-                        , "STATUS"
-                        , "LAST MODIFIED BY"
-                        , "LAST MODIFIED AT"
-                        , "VERSION"
-                        ]
-                    ,
-                        [ content.id
-                        , content.space.key <> " (" <> content.space.name <> ")"
-                        , content.title
-                        , toText $ content.contentType
-                        , toText $ content.status
-                        , toText $
-                            content.version.by.displayName
-                                <> " ("
-                                <> content.version.by.username
-                                <> ")"
-                        , fmtWhen content.version.when
-                        , toText $ content.version.number
-                        ]
+                record
+                    fmt
+                    [ "ID"
+                    , "SPACE"
+                    , "TITLE"
+                    , "TYPE"
+                    , "STATUS"
+                    , "LAST MODIFIED BY"
+                    , "LAST MODIFIED AT"
+                    , "VERSION"
+                    ]
+                    [ content.id
+                    , content.space.key <> " (" <> content.space.name <> ")"
+                    , content.title
+                    , toText $ content.contentType
+                    , toText $ content.status
+                    , toText $
+                        content.version.by.displayName
+                            <> " ("
+                            <> content.version.by.username
+                            <> ")"
+                    , fmtWhen content.version.when
+                    , toText $ content.version.number
                     ]
   where
     fmtWhen :: ZonedTime -> T.Text
@@ -118,14 +115,22 @@ getContentInfo cfg ident = do
             . zonedTimeToLocalTime
 
 -- | Lists the content satisfying the given filters.
-listContent :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()
-listContent cfg m_key m_title start limit = do
+listContent ::
+    Config ->
+    Maybe SpaceKey ->
+    Maybe T.Text ->
+    Int ->
+    Int ->
+    TableFormat ->
+    IO ()
+listContent cfg m_key m_title start limit fmt = do
     result <- runConfluence cfg $ API.getContents m_key m_title start limit
     withEither result $ \contentArray ->
         let pages = contentArray.results
             getSpaceKey = (.key) <$> (.space)
          in printTable $
-                defaultTable
+                table
+                    fmt
                     ["ID", "STATUS", "SPACE", "TITLE"]
                     [ toTextF ((.id) <$> pages)
                     , toTextF ((.status) <$> pages)
@@ -170,22 +175,20 @@ updateContent cfg id new_title new_ty new_status new_repr m_path = do
 
 -- TODO: support more options:
 -- https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-space/#api-wiki-rest-api-space-get
-getSpaces :: Config -> Int -> Int -> Maybe SpaceType -> IO ()
-getSpaces cfg start limit ty = do
+getSpaces :: Config -> Int -> Int -> Maybe SpaceType -> TableFormat -> IO ()
+getSpaces cfg start limit ty fmt = do
     result <- runConfluence cfg $ API.getSpaces start limit ty
-    withEither result printSpaces
-
-printSpaces :: SpaceArray -> IO ()
-printSpaces arr =
-    let spaces = arr.results
-     in printTable $
-            defaultTable
-                ["ID", "NAME", "KEY", "TYPE"]
-                [ toText . (.id) <$> spaces
-                , (.name) <$> spaces
-                , (.key) <$> spaces
-                , toText . (.spaceType) <$> spaces
-                ]
+    withEither result $ \spacesArray ->
+        let spaces = spacesArray.results
+         in printTable $
+                table
+                    fmt
+                    ["ID", "NAME", "KEY", "TYPE"]
+                    [ toText . (.id) <$> spaces
+                    , (.name) <$> spaces
+                    , (.key) <$> spaces
+                    , toText . (.spaceType) <$> spaces
+                    ]
 
 --------------------------------------------------------------------------------
 -- Utility functions

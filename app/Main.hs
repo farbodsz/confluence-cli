@@ -37,7 +37,7 @@ runCommand cfg (ContentCreateCommand opts) =
 runCommand cfg (ContentDeleteCommand opts) =
     CLI.deleteContent cfg opts.id opts.purge
 runCommand cfg (ContentInfoCommand opts) =
-    CLI.getContentInfo cfg opts.ident
+    CLI.getContentInfo cfg opts.ident opts.format
 runCommand cfg (ContentListCommand opts) =
     CLI.listContent
         cfg
@@ -45,6 +45,7 @@ runCommand cfg (ContentListCommand opts) =
         opts.title
         opts.start
         opts.limit
+        opts.format
 runCommand cfg (ContentUpdateCommand opts) =
     CLI.updateContent
         cfg
@@ -55,6 +56,6 @@ runCommand cfg (ContentUpdateCommand opts) =
         opts.newRepresentation
         opts.newBodyFilePath
 runCommand cfg (SpacesListCommand opts) =
-    CLI.getSpaces cfg opts.start opts.limit opts.spaceType
+    CLI.getSpaces cfg opts.start opts.limit opts.spaceType opts.format
 
 --------------------------------------------------------------------------------

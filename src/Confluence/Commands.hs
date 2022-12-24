@@ -17,6 +17,7 @@ module Confluence.Commands (
     SpacesListOpts (..),
 ) where
 
+import Confluence.Output (TableFormat (Pretty))
 import Confluence.TextConversions (FromText (fromText), ToText (toText))
 import Confluence.Types
 import Data.Text qualified as T
@@ -95,13 +96,16 @@ contentDeleteP =
     fmap ContentDeleteCommand $
         ContentDeleteOpts <$> argContentIdP <*> flagContentPurgeP
 
-data ContentInfoOpts = ContentInfoOpts {ident :: ContentIdentification}
+data ContentInfoOpts = ContentInfoOpts
+    { ident :: ContentIdentification
+    , format :: TableFormat
+    }
     deriving (Eq)
 
 contentInfoP :: Parser ConfluenceCmd
 contentInfoP =
     fmap ContentInfoCommand $
-        ContentInfoOpts <$> (contentIdP <|> contentNameP)
+        ContentInfoOpts <$> (contentIdP <|> contentNameP) <*> optTableFormatP
   where
     contentIdP = ContentId <$> optContentIdP
     contentNameP = ContentName <$> argSpaceKeyP <*> argContentTitleP
@@ -111,6 +115,7 @@ data ContentListOpts = ContentListOpts
     , title :: Maybe T.Text
     , start :: Int
     , limit :: Int
+    , format :: TableFormat
     }
     deriving (Eq)
 
@@ -124,6 +129,7 @@ contentListP =
             <*> optional optContentTitleP
             <*> optStartP
             <*> optLimitP
+            <*> optTableFormatP
 
 data ContentUpdateOpts = ContentUpdateOpts
     { id :: ContentId
@@ -239,6 +245,7 @@ data SpacesListOpts = SpacesListOpts
     { start :: Int
     , limit :: Int
     , spaceType :: Maybe SpaceType
+    , format :: TableFormat
     }
     deriving (Eq)
 
@@ -249,6 +256,7 @@ spacesListP =
             <$> optStartP
             <*> optLimitP
             <*> optSpaceTypeP
+            <*> optTableFormatP
 
 --------------------------------------------------------------------------------
 -- Space options
@@ -294,6 +302,18 @@ optFilePathP =
         ( long "path"
             <> metavar "FILEPATH"
             <> help "Path to input file"
+        )
+
+optTableFormatP :: Parser TableFormat
+optTableFormatP =
+    option
+        typeReader
+        ( long "format"
+            <> short 'F'
+            <> showDefaultWith (T.unpack . toText)
+            <> value Pretty
+            <> help "Output format"
+            <> metavar "FORMAT"
         )
 
 --------------------------------------------------------------------------------

@@ -1,21 +1,23 @@
 ----------------------------------------------------------------------------------
 
-module Confluence.Table (
+module Confluence.Output.Table (
     -- * Table
-    table,
+    Table (..),
     printTable,
 
-    -- * Defaults
-    defaultTable,
-    defaultColMeta,
-    defaultColSep,
+    -- * Options
+    TableSeparators (..),
+    Column (..),
+    ColMeta (..),
+    Width (..),
+    Alignment (..),
 ) where
 
 import Data.List (transpose)
+import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
-import Data.Tuple.Extra (uncurry3)
 
 --------------------------------------------------------------------------------
 -- Types
@@ -24,50 +26,46 @@ data Table = Table
     { separators :: TableSeparators
     , columns :: [Column]
     }
+    deriving (Show)
 
-type Separator = Text
-
-data TableSeparators = TableSeparators {colSep :: Separator}
+data TableSeparators = TableSeparators
+    { colSep :: Text
+    }
+    deriving (Show)
 
 data Column = Column
     { meta :: ColMeta
-    , header :: Text
+    , header :: Maybe Text
     , rows :: [Text]
     }
+    deriving (Show)
 
 data ColMeta = ColMeta
     { width :: Width
     , alignment :: Alignment
     }
+    deriving (Show)
 
 data Width = Fixed Int | Expandable
+    deriving (Show)
 
 data Alignment = AlignLeft | AlignCenter | AlignRight
-
---------------------------------------------------------------------------------
--- Constructing tables
-
--- | @table separator metas headers rows@ constructs a table with those options
-table :: Separator -> [ColMeta] -> [Text] -> [[Text]] -> Table
-table sep metas hs xss =
-    Table
-        { separators = TableSeparators sep
-        , columns = uncurry3 Column <$> zip3 metas hs xss
-        }
+    deriving (Show)
 
 --------------------------------------------------------------------------------
 -- Rendering tables
 
--- | @renderTable table@ produces a list of columns where each column is a list
--- of texts.
+-- | @renderTable table@ produces a list of rendered rows.
 renderTable :: Table -> [Text]
 renderTable (Table seps cols) = T.intercalate seps.colSep <$> transpose colTexts
   where
     colTexts = mkCol <$> cols
 
+-- | @mkCol column@ renders a column as a list or rows.
 mkCol :: Column -> [Text]
-mkCol (Column meta header xs) = pad meta.alignment w <$> (header : xs)
+mkCol (Column meta mheader xs) = pad meta.alignment w <$> (headerRow <> xs)
   where
+    headerRow = maybeToList mheader
     w = case meta.width of
         Fixed x -> x
         Expandable -> maximum (T.length <$> xs)
@@ -84,21 +82,5 @@ pad :: Alignment -> Int -> Text -> Text
 pad AlignLeft n = T.justifyLeft n ' '
 pad AlignCenter n = T.center n ' '
 pad AlignRight n = T.justifyRight n ' '
-
-----------------------------------------------------------------------------------
--- Defaults
-
--- | @defaultTable headers rows@ creates a table with default column metas and
--- default column separator.
-defaultTable :: [Text] -> [[Text]] -> Table
-defaultTable headers rows = table defaultColSep metas headers rows
-  where
-    metas = replicate (length headers + length rows) defaultColMeta
-
-defaultColMeta :: ColMeta
-defaultColMeta = ColMeta Expandable AlignLeft
-
-defaultColSep :: Text
-defaultColSep = "  "
 
 ----------------------------------------------------------------------------------

@@ -33,7 +33,9 @@ library
       Confluence.Config
       Confluence.Error
       Confluence.Monad
-      Confluence.Table
+      Confluence.Output
+      Confluence.Output.Format
+      Confluence.Output.Table
       Confluence.TextConversions
       Confluence.Types
       Confluence.Types.Common
