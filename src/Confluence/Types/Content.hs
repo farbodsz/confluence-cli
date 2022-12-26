@@ -14,7 +14,7 @@ module Confluence.Types.Content (
 
 import Confluence.TextConversions
 import Confluence.Types.Common (GenericLinks)
-import Confluence.Types.ResultArray (ResultArray)
+import Confluence.Types.Result (ResultArray)
 import Confluence.Types.Space (Space, SpaceKey)
 import Confluence.Types.Util qualified as Util
 import Confluence.Types.Version (Version)

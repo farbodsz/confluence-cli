@@ -9,7 +9,7 @@ module Confluence.Types.Space (
 
 import Confluence.TextConversions
 import Confluence.Types.Common
-import Confluence.Types.ResultArray (ResultArray)
+import Confluence.Types.Result (ResultArray)
 import Confluence.Types.Util qualified as Util
 import Data.Aeson (FromJSON (parseJSON), Object, withText)
 import Data.Text (Text)

@@ -24,7 +24,7 @@ import Network.HTTP.Simple (
     Response,
     defaultRequest,
     getResponseBody,
-    getResponseStatusCode,
+    getResponseStatus,
     httpLBS,
     setRequestBearerAuth,
     setRequestBodyJSON,
@@ -33,6 +33,7 @@ import Network.HTTP.Simple (
     setRequestPath,
     setRequestQueryString,
  )
+import Network.HTTP.Types (statusIsSuccessful)
 import System.FilePath ((</>))
 
 type Endpoint = String
@@ -46,14 +47,16 @@ baseRequest cfg path =
   where
     fullPath = T.pack $ "/rest/api" </> path
 
--- | @parseResponse@ attempts to parse the HTTP response bytestring into a JSON
--- type.
+-- | @parseResponse response@ returns a @(status, responseObject)@ tuple, by
+-- attempts to parse the HTTP response bytestring into a JSON type.
 parseResponse :: FromJSON a => Response LB.ByteString -> Either ResponseError a
-parseResponse resp =
-    let body = getResponseBody resp
-     in case getResponseStatusCode resp of
-            200 -> maybeToEither (ResponseDecodeError body) . decode $ body
-            code -> Left $ HttpError code
+parseResponse resp
+    | statusIsSuccessful status = decodeRespEither body
+    | otherwise = Left $ HttpError status (decode body)
+  where
+    body = getResponseBody resp
+    status = getResponseStatus resp
+    decodeRespEither r = maybeToEither (ResponseDecodeError r) . decode $ r
 
 -- | Helper function which makes the HTTP request, processes, and returns its
 -- response.

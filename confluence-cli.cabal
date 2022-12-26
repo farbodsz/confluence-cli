@@ -40,7 +40,7 @@ library
       Confluence.Types.Content
       Confluence.Types.ContentCreate
       Confluence.Types.Instances
-      Confluence.Types.ResultArray
+      Confluence.Types.Result
       Confluence.Types.Space
       Confluence.Types.User
       Confluence.Types.Util
