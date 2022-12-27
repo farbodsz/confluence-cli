@@ -4,6 +4,7 @@ module Confluence.CLI (
     -- * Content
     createContent,
     deleteContent,
+    getContentBody,
     getContentInfo,
     listContent,
     updateContent,
@@ -27,7 +28,11 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Maybe (fromMaybe)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
-import Data.Time (ZonedTime (zonedTimeToLocalTime), defaultTimeLocale, formatTime)
+import Data.Time (
+    ZonedTime (zonedTimeToLocalTime),
+    defaultTimeLocale,
+    formatTime,
+ )
 import System.IO (hFlush, stdout)
 import Prelude hiding (id)
 
@@ -66,7 +71,19 @@ deleteContent cfg id purge = whenM hasUserConfirmed $ do
         | purge = confirm "Are you sure you want to purge this content?"
         | otherwise = pure True
 
--- | Returns information about a single content.
+-- | Outputs the content body in storage representation.
+getContentBody :: Config -> SpaceKey -> T.Text -> IO ()
+getContentBody cfg key title = do
+    result <- runConfluence cfg $ API.getContentByTitle key title
+
+    let errTxt x = T.concat ["No ", x, " found: '", key, "' -> '", title, "'"]
+    withEither result $ \case
+        Nothing -> T.putStrLn $ errTxt "content"
+        Just content -> case content.body.storage of
+            Nothing -> T.putStrLn $ errTxt "content body (storage)"
+            Just storage -> T.putStrLn storage.value
+
+-- | Prints information about a single content.
 getContentInfo :: Config -> ContentIdentification -> IO ()
 getContentInfo cfg ident = do
     result <- runConfluence cfg $ case ident of

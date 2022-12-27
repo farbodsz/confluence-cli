@@ -18,7 +18,7 @@ import Confluence.Types.Result (ResultArray)
 import Confluence.Types.Space (Space, SpaceKey)
 import Confluence.Types.Util qualified as Util
 import Confluence.Types.Version (Version)
-import Data.Aeson (FromJSON (parseJSON), Object, ToJSON (toJSON))
+import Data.Aeson (FromJSON (parseJSON), Object, Options (..), ToJSON (toJSON), defaultOptions, genericParseJSON)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 
@@ -35,7 +35,6 @@ type ContentId = Text
 -- Note: some of these depend on what "expandable" properties are set in the get
 -- call.
 --
---   * body
 --   * history
 --   * version
 --   * ancestors
@@ -56,6 +55,7 @@ data Content = Content
     , title :: Text
     , space :: Space
     , version :: Version
+    , body :: ContentBodyContainer
     , _expandable :: Object
     , _links :: GenericLinks
     }
@@ -126,21 +126,24 @@ instance ToJSON ContentStatus where
 
 -- Leaving out "_expandable" field as not needed yet.
 data ContentBodyContainer = ContentBodyContainer
-    { view :: ContentBody
-    , exportView :: ContentBody
-    , styledView :: ContentBody
-    , storage :: ContentBody
-    , wiki :: ContentBody
-    , editor :: ContentBody
-    , editor2 :: ContentBody
-    , anonExportView :: ContentBody
-    , atlasDocFmt :: ContentBody
-    , dynamic :: ContentBody
+    { view :: Maybe ContentBody
+    , exportView :: Maybe ContentBody
+    , styledView :: Maybe ContentBody
+    , storage :: Maybe ContentBody
+    , wiki :: Maybe ContentBody
+    , editor :: Maybe ContentBody
+    , editor2 :: Maybe ContentBody
+    , anonExportView :: Maybe ContentBody
+    , atlasDocFmt :: Maybe ContentBody
+    , dynamic :: Maybe ContentBody
     , _expandable :: Object
     }
     deriving (Generic, Show)
 
-instance FromJSON ContentBodyContainer
+instance FromJSON ContentBodyContainer where
+    parseJSON =
+        genericParseJSON $
+            defaultOptions {fieldLabelModifier = Util.snakeToCamel}
 
 -- Leaving out: webresource, mediatoken, embeddedContent, _expandable,
 -- _genericLinks
@@ -151,6 +154,7 @@ data ContentBody = ContentBody
     deriving (Generic, Show)
 
 instance FromJSON ContentBody
+instance ToJSON ContentBody
 
 data ContentRepresentation
     = ViewRepresentation

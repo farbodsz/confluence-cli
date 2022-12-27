@@ -25,6 +25,8 @@ configErrMsg (NoConfigFoundErr path) =
 configErrMsg (InvalidConfigErr contents) = "Invalid config file:\n" <> contents
 
 runCommand :: Config -> ConfluenceCmd -> IO ()
+runCommand cfg (ContentBodyCommand opts) =
+    CLI.getContentBody cfg opts.space opts.title
 runCommand cfg (ContentCreateCommand opts) =
     CLI.createContent
         cfg

@@ -6,6 +6,7 @@ module Confluence.Commands (
     ConfluenceCmd (..),
 
     -- * Content command options
+    ContentBodyOpts (..),
     ContentCreateOpts (..),
     ContentDeleteOpts (..),
     ContentInfoOpts (..),
@@ -28,7 +29,8 @@ import Paths_confluence_cli (version)
 -- Root
 
 data ConfluenceCmd
-    = ContentCreateCommand ContentCreateOpts
+    = ContentBodyCommand ContentBodyOpts
+    | ContentCreateCommand ContentCreateOpts
     | ContentDeleteCommand ContentDeleteOpts
     | ContentInfoCommand ContentInfoOpts
     | ContentListCommand ContentListOpts
@@ -58,10 +60,22 @@ contentP :: Parser ConfluenceCmd
 contentP =
     hsubparser $
         command "add" (info contentCreateP $ progDesc "Add content")
+            <> command "body" (info contentBodyP $ progDesc "Get content body")
             <> command "info" (info contentInfoP $ progDesc "Content info")
             <> command "list" (info contentListP $ progDesc "List content")
             <> command "rm" (info contentDeleteP $ progDesc "Delete content")
             <> command "update" (info contentUpdateP $ progDesc "Update content")
+
+data ContentBodyOpts = ContentBodyOpts
+    { space :: SpaceKey
+    , title :: T.Text
+    }
+    deriving (Eq)
+
+contentBodyP :: Parser ConfluenceCmd
+contentBodyP =
+    fmap ContentBodyCommand $
+        ContentBodyOpts <$> optSpaceKeyP <*> optContentTitleP
 
 data ContentCreateOpts = ContentCreateOpts
     { space :: SpaceKey
