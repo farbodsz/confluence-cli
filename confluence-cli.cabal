@@ -38,7 +38,6 @@ library
       Confluence.Types
       Confluence.Types.Common
       Confluence.Types.Content
-      Confluence.Types.ContentCreate
       Confluence.Types.Instances
       Confluence.Types.Result
       Confluence.Types.Space
