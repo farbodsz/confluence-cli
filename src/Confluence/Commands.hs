@@ -5,13 +5,13 @@ module Confluence.Commands (
     cliArgs,
     ConfluenceCmd (..),
 
-    -- * Content command options
-    ContentCreateOpts (..),
-    ContentDeleteOpts (..),
-    ContentInfoOpts (..),
-    ContentIdentification (..),
-    ContentListOpts (..),
-    ContentUpdateOpts (..),
+    -- * Page command options
+    PageCreateOpts (..),
+    PageDeleteOpts (..),
+    PageInfoOpts (..),
+    PageIdentification (..),
+    PageListOpts (..),
+    PageUpdateOpts (..),
 
     -- * Spaces command options
     SpacesListOpts (..),
@@ -28,12 +28,12 @@ import Paths_confluence_cli (version)
 -- Root
 
 data ConfluenceCmd
-    = ContentCreateCommand ContentCreateOpts
-    | ContentDeleteCommand ContentDeleteOpts
-    | ContentInfoCommand ContentInfoOpts
-    | ContentListCommand ContentListOpts
-    | ContentUpdateCommand ContentUpdateOpts
-    | SpacesListCommand SpacesListOpts
+    = PageCreateCmd PageCreateOpts
+    | PageDeleteCmd PageDeleteOpts
+    | PageInfoCmd PageInfoOpts
+    | PageListCmd PageListOpts
+    | PageUpdateCmd PageUpdateOpts
+    | SpacesListCmd SpacesListOpts
     deriving (Eq)
 
 cliArgs :: ParserInfo ConfluenceCmd
@@ -48,65 +48,65 @@ cliVersion = showVersion version
 confluenceP :: Parser ConfluenceCmd
 confluenceP =
     hsubparser $
-        command "content" (info contentP $ progDesc "Content")
-            <> command "spaces" (info spacesP $ progDesc "Spaces")
+        command "page" (info pageP $ progDesc "Pages")
+            <> command "space" (info spacesP $ progDesc "Spaces")
 
 --------------------------------------------------------------------------------
--- Content
+-- Page
 
-contentP :: Parser ConfluenceCmd
-contentP =
+pageP :: Parser ConfluenceCmd
+pageP =
     hsubparser $
-        command "add" (info contentCreateP $ progDesc "Add content")
-            <> command "info" (info contentInfoP $ progDesc "Content info")
-            <> command "list" (info contentListP $ progDesc "List content")
-            <> command "rm" (info contentDeleteP $ progDesc "Delete content")
-            <> command "update" (info contentUpdateP $ progDesc "Update content")
+        command "create" (info pageCreateP $ progDesc "Create page")
+            <> command "info" (info pageInfoP $ progDesc "Get page")
+            <> command "list" (info pageListP $ progDesc "List pages")
+            <> command "rm" (info pageDeleteP $ progDesc "Delete page")
+            <> command "update" (info pageUpdateP $ progDesc "Update page")
 
-data ContentCreateOpts = ContentCreateOpts
+data PageCreateOpts = PageCreateOpts
     { space :: SpaceKey
     , title :: T.Text
     , filePath :: FilePath
     , contentType :: ContentType
-    , status :: ContentStatus
+    , status :: PageStatus
     , representation :: ContentRepresentation
     }
     deriving (Eq)
 
-contentCreateP :: Parser ConfluenceCmd
-contentCreateP =
-    fmap ContentCreateCommand $
-        ContentCreateOpts
+pageCreateP :: Parser ConfluenceCmd
+pageCreateP =
+    fmap PageCreateCmd $
+        PageCreateOpts
             <$> optSpaceKeyP
-            <*> optContentTitleP
+            <*> optPageTitleP
             <*> optFilePathP
             <*> optContentTypeP
-            <*> optContentStatusP
+            <*> optPageStatusP
             <*> optContentRepresentationP
 
-data ContentDeleteOpts = ContentDeleteOpts
-    { id :: ContentId
+data PageDeleteOpts = PageDeleteOpts
+    { id :: PageId
     , purge :: Bool
     }
     deriving (Eq)
 
-contentDeleteP :: Parser ConfluenceCmd
-contentDeleteP =
-    fmap ContentDeleteCommand $
-        ContentDeleteOpts <$> argContentIdP <*> flagContentPurgeP
+pageDeleteP :: Parser ConfluenceCmd
+pageDeleteP =
+    fmap PageDeleteCmd $
+        PageDeleteOpts <$> argPageIdP <*> flagPagePurgeP
 
-data ContentInfoOpts = ContentInfoOpts {ident :: ContentIdentification}
+data PageInfoOpts = PageInfoOpts {ident :: PageIdentification}
     deriving (Eq)
 
-contentInfoP :: Parser ConfluenceCmd
-contentInfoP =
-    fmap ContentInfoCommand $
-        ContentInfoOpts <$> (contentIdP <|> contentNameP)
+pageInfoP :: Parser ConfluenceCmd
+pageInfoP =
+    fmap PageInfoCmd $
+        PageInfoOpts <$> (pageIdP <|> pageNameP)
   where
-    contentIdP = ContentId <$> optContentIdP
-    contentNameP = ContentName <$> argSpaceKeyP <*> argContentTitleP
+    pageIdP = PageId <$> optPageIdP
+    pageNameP = PageName <$> argSpaceKeyP <*> argPageTitleP
 
-data ContentListOpts = ContentListOpts
+data PageListOpts = PageListOpts
     { space :: Maybe SpaceKey
     , title :: Maybe T.Text
     , start :: Int
@@ -116,68 +116,68 @@ data ContentListOpts = ContentListOpts
 
 -- TODO: Only supports --type "page" for now (because title required for page
 -- type, date required for blogpost type)
-contentListP :: Parser ConfluenceCmd
-contentListP =
-    fmap ContentListCommand $
-        ContentListOpts
+pageListP :: Parser ConfluenceCmd
+pageListP =
+    fmap PageListCmd $
+        PageListOpts
             <$> optional optSpaceKeyP
-            <*> optional optContentTitleP
+            <*> optional optPageTitleP
             <*> optStartP
             <*> optLimitP
 
-data ContentUpdateOpts = ContentUpdateOpts
-    { id :: ContentId
+data PageUpdateOpts = PageUpdateOpts
+    { id :: PageId
     , newTitle :: Maybe T.Text
     , newType :: ContentType
-    , newStatus :: Maybe ContentStatus
+    , newStatus :: Maybe PageStatus
     , newRepresentation :: ContentRepresentation
     , newBodyFilePath :: Maybe FilePath
     }
     deriving (Eq)
 
-contentUpdateP :: Parser ConfluenceCmd
-contentUpdateP =
-    fmap ContentUpdateCommand $
-        ContentUpdateOpts
-            <$> argContentIdP
-            <*> optional optContentTitleP
+pageUpdateP :: Parser ConfluenceCmd
+pageUpdateP =
+    fmap PageUpdateCmd $
+        PageUpdateOpts
+            <$> argPageIdP
+            <*> optional optPageTitleP
             <*> optContentTypeP
-            <*> optional optContentStatusP
+            <*> optional optPageStatusP
             <*> optContentRepresentationP
             <*> optional optFilePathP
 
 --------------------------------------------------------------------------------
--- Content arguments
+-- Page arguments
 
-argContentIdP :: Parser ContentId
-argContentIdP = strArgument (help "Content ID" <> metavar "ID")
+argPageIdP :: Parser PageId
+argPageIdP = strArgument (help "Page ID" <> metavar "ID")
 
 argSpaceKeyP :: Parser SpaceKey
 argSpaceKeyP =
-    strArgument (help "Space that the content belongs to" <> metavar "SPACE")
+    strArgument (help "Space that the page belongs to" <> metavar "SPACE")
 
-argContentTitleP :: Parser T.Text
-argContentTitleP = strArgument (help "Content title" <> metavar "TITLE")
+argPageTitleP :: Parser T.Text
+argPageTitleP = strArgument (help "Page title" <> metavar "TITLE")
 
 --------------------------------------------------------------------------------
--- Content options
+-- Page options
 
-optContentIdP :: Parser ContentId
-optContentIdP = strOption (long "id" <> help "Content ID" <> metavar "ID")
+optPageIdP :: Parser PageId
+optPageIdP = strOption (long "id" <> help "Page ID" <> metavar "ID")
 
 optSpaceKeyP :: Parser SpaceKey
 optSpaceKeyP =
     strOption
         ( long "space"
-            <> help "Space that the content belongs to"
+            <> help "Space that the page belongs to"
             <> metavar "STRING"
         )
 
-optContentTitleP :: Parser T.Text
-optContentTitleP =
+optPageTitleP :: Parser T.Text
+optPageTitleP =
     strOption
         ( long "title"
-            <> help "Content title"
+            <> help "Page title"
             <> metavar "STRING"
         )
 
@@ -194,8 +194,8 @@ optContentTypeP =
             <> value PageContent
         )
 
-optContentStatusP :: Parser ContentStatus
-optContentStatusP =
+optPageStatusP :: Parser PageStatus
+optPageStatusP =
     option
         typeReader
         ( long "status"
@@ -216,15 +216,14 @@ optContentRepresentationP =
             <> value StorageRepresentation
         )
 
-flagContentPurgeP :: Parser Bool
-flagContentPurgeP =
+flagPagePurgeP :: Parser Bool
+flagPagePurgeP =
     switch
         ( long "purge"
             <> help
-                "If a content's type is `page` or `blogpost` and it's already\
-                \ `trashed`, then set this flag to purge it from the trash and\
-                \ delete permanently. Comments or attachments are deleted\
-                \ permanently regardless of whether this flag is set."
+                "Set this flag to purge it from the trash and delete\
+                \ permanently. Comments or attachments are deleted permanently\
+                \ regardless of whether this flag is set."
         )
 
 --------------------------------------------------------------------------------
@@ -244,7 +243,7 @@ data SpacesListOpts = SpacesListOpts
 
 spacesListP :: Parser ConfluenceCmd
 spacesListP =
-    fmap SpacesListCommand $
+    fmap SpacesListCmd $
         SpacesListOpts
             <$> optStartP
             <*> optLimitP

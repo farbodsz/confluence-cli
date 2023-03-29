@@ -25,8 +25,8 @@ configErrMsg (NoConfigFoundErr path) =
 configErrMsg (InvalidConfigErr contents) = "Invalid config file:\n" <> contents
 
 runCommand :: Config -> ConfluenceCmd -> IO ()
-runCommand cfg (ContentCreateCommand opts) =
-    CLI.createContent
+runCommand cfg (PageCreateCmd opts) =
+    CLI.createPage
         cfg
         opts.space
         opts.title
@@ -34,19 +34,19 @@ runCommand cfg (ContentCreateCommand opts) =
         opts.status
         opts.contentType
         opts.filePath
-runCommand cfg (ContentDeleteCommand opts) =
-    CLI.deleteContent cfg opts.id opts.purge
-runCommand cfg (ContentInfoCommand opts) =
-    CLI.getContentInfo cfg opts.ident
-runCommand cfg (ContentListCommand opts) =
-    CLI.listContent
+runCommand cfg (PageDeleteCmd opts) =
+    CLI.deletePage cfg opts.id opts.purge
+runCommand cfg (PageInfoCmd opts) =
+    CLI.getPageInfo cfg opts.ident
+runCommand cfg (PageListCmd opts) =
+    CLI.listPages
         cfg
         opts.space
         opts.title
         opts.start
         opts.limit
-runCommand cfg (ContentUpdateCommand opts) =
-    CLI.updateContent
+runCommand cfg (PageUpdateCmd opts) =
+    CLI.updatePage
         cfg
         opts.id
         opts.newTitle
@@ -54,7 +54,7 @@ runCommand cfg (ContentUpdateCommand opts) =
         opts.newStatus
         opts.newRepresentation
         opts.newBodyFilePath
-runCommand cfg (SpacesListCommand opts) =
+runCommand cfg (SpacesListCmd opts) =
     CLI.getSpaces cfg opts.start opts.limit opts.spaceType
 
 --------------------------------------------------------------------------------

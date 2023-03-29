@@ -1,12 +1,12 @@
 --------------------------------------------------------------------------------
 
 module Confluence.CLI (
-    -- * Content
-    createContent,
-    deleteContent,
-    getContentInfo,
-    listContent,
-    updateContent,
+    -- * Page
+    createPage,
+    deletePage,
+    getPageInfo,
+    listPages,
+    updatePage,
 
     -- * Spaces
     getSpaces,
@@ -32,55 +32,47 @@ import System.IO (hFlush, stdout)
 import Prelude hiding (id)
 
 --------------------------------------------------------------------------------
--- Content
+-- Page
 
 -- | Creates a Confluence page using with the contents of the given file.
-createContent ::
+createPage ::
     Config ->
     SpaceKey ->
     T.Text ->
     ContentRepresentation ->
-    ContentStatus ->
+    PageStatus ->
     ContentType ->
     FilePath ->
     IO ()
-createContent cfg key title repr status ty path = do
+createPage cfg key title repr status ty path = do
     body <- T.readFile path
-    result <-
-        runConfluence cfg $
-            API.createContent
-                key
-                title
-                repr
-                status
-                ty
-                body
+    result <- runConfluence cfg $ API.createPage key title repr status ty body
     withEither result $ pure . pure ()
 
-deleteContent :: Config -> ContentId -> Bool -> IO ()
-deleteContent cfg id purge = whenM hasUserConfirmed $ do
-    result <- runConfluence cfg $ API.deleteContent id purge
+deletePage :: Config -> PageId -> Bool -> IO ()
+deletePage cfg id purge = whenM hasUserConfirmed $ do
+    result <- runConfluence cfg $ API.deletePage id purge
     withEither result $ pure . pure ()
   where
     hasUserConfirmed
-        | purge = confirm "Are you sure you want to purge this content?"
+        | purge = confirm "Are you sure you want to purge this page?"
         | otherwise = pure True
 
--- | Returns information about a single content.
-getContentInfo :: Config -> ContentIdentification -> IO ()
-getContentInfo cfg ident = do
+-- | Returns information about a single page.
+getPageInfo :: Config -> PageIdentification -> IO ()
+getPageInfo cfg ident = do
     result <- runConfluence cfg $ case ident of
-        ContentId id -> API.getContentById id
-        ContentName key title -> API.getContentByTitle key title
+        PageId id -> API.getPageById id
+        PageName key title -> API.getPageByTitle key title
 
     withEither result $ \case
         Nothing ->
             T.putStrLn $ case ident of
-                ContentId id ->
-                    "No content found with ID: '" <> id <> "'"
-                ContentName key title ->
-                    "No content found: '" <> key <> "' -> '" <> title <> "'"
-        Just content -> do
+                PageId id ->
+                    "No page found with ID: '" <> id <> "'"
+                PageName key title ->
+                    "No page found: '" <> key <> "' -> '" <> title <> "'"
+        Just page -> do
             printTable $
                 defaultTable
                     [
@@ -94,18 +86,18 @@ getContentInfo cfg ident = do
                         , "VERSION"
                         ]
                     ,
-                        [ content.id
-                        , content.space.key <> " (" <> content.space.name <> ")"
-                        , content.title
-                        , toText $ content.contentType
-                        , toText $ content.status
+                        [ page.id
+                        , page.space.key <> " (" <> page.space.name <> ")"
+                        , page.title
+                        , toText $ page.contentType
+                        , toText $ page.status
                         , toText $
-                            content.version.by.displayName
+                            page.version.by.displayName
                                 <> " ("
-                                <> content.version.by.username
+                                <> page.version.by.username
                                 <> ")"
-                        , fmtWhen content.version.when
-                        , toText $ content.version.number
+                        , fmtWhen page.version.when
+                        , toText $ page.version.number
                         ]
                     ]
   where
@@ -115,12 +107,12 @@ getContentInfo cfg ident = do
             . formatTime defaultTimeLocale "%d %b %Y at %R"
             . zonedTimeToLocalTime
 
--- | Lists the content satisfying the given filters.
-listContent :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()
-listContent cfg m_key m_title start limit = do
-    result <- runConfluence cfg $ API.getContents m_key m_title start limit
-    withEither result $ \contentArray ->
-        let pages = contentArray.results
+-- | Lists the pages satisfying the given filters.
+listPages :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()
+listPages cfg m_key m_title start limit = do
+    result <- runConfluence cfg $ API.getPages m_key m_title start limit
+    withEither result $ \pageArray ->
+        let pages = pageArray.results
             getSpaceKey = (.key) <$> (.space)
          in printTable $
                 defaultTable
@@ -130,29 +122,29 @@ listContent cfg m_key m_title start limit = do
                     , "TITLE" : toTextF ((.title) <$> pages)
                     ]
 
--- | Update content modifies some metadata or body of the content with the given
+-- | Update page modifies some metadata or body of the page with the given
 -- ID.
-updateContent ::
+updatePage ::
     Config ->
-    ContentId ->
+    PageId ->
     Maybe T.Text ->
     ContentType ->
-    Maybe ContentStatus ->
+    Maybe PageStatus ->
     ContentRepresentation ->
     Maybe FilePath ->
     IO ()
-updateContent cfg id new_title new_ty new_status new_repr m_path = do
+updatePage cfg id new_title new_ty new_status new_repr m_path = do
     new_body <- traverse T.readFile m_path
     result <- runConfluence cfg $ do
-        curr_content <- API.getContentById id
-        case curr_content of
+        curr_page <- API.getPageById id
+        case curr_page of
             Nothing ->
                 liftIO . T.putStrLn $
-                    "Unable to find existing content with ID: " <> id
-            Just content ->
-                let new_version = content.version.number + 1
-                    new_title' = fromMaybe content.title new_title
-                 in API.updateContent
+                    "Unable to find existing page with ID: " <> id
+            Just page ->
+                let new_version = page.version.number + 1
+                    new_title' = fromMaybe page.title new_title
+                 in API.updatePage
                         id
                         new_version
                         new_title'
@@ -165,8 +157,7 @@ updateContent cfg id new_title new_ty new_status new_repr m_path = do
 --------------------------------------------------------------------------------
 -- Spaces
 
--- TODO: support more options:
--- https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-space/#api-wiki-rest-api-space-get
+-- TODO: support more options
 getSpaces :: Config -> Int -> Int -> Maybe SpaceType -> IO ()
 getSpaces cfg start limit ty = do
     result <- runConfluence cfg $ API.getSpaces start limit ty

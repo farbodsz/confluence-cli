@@ -1,12 +1,12 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types.Content (
+module Confluence.Types.Page (
     ContentArray,
     Content (..),
-    ContentId,
-    ContentIdentification (..),
+    PageId,
+    PageIdentification (..),
     ContentType (..),
-    ContentStatus (..),
+    PageStatus (..),
     ContentBodyContainer (..),
     ContentBody (..),
     ContentRepresentation (..),
@@ -28,7 +28,7 @@ type ContentArray = ResultArray Content
 
 --------------------------------------------------------------------------------
 
-type ContentId = Text
+type PageId = Text
 
 -- We leave out these fields from Content, as we don't care about them for now:
 --
@@ -50,9 +50,9 @@ type ContentId = Text
 --   * extensions
 --
 data Content = Content
-    { id :: ContentId
+    { id :: PageId
     , contentType :: ContentType
-    , status :: ContentStatus
+    , status :: PageStatus
     , title :: Text
     , space :: Space
     , version :: Version
@@ -66,9 +66,10 @@ instance FromJSON Content where
 
 -- | Content on Confluence can be identified either by an integer ID, or by the
 -- space key and content title.
-data ContentIdentification = ContentId ContentId | ContentName SpaceKey Text
+data PageIdentification = PageId PageId | PageName SpaceKey Text
     deriving (Eq)
 
+{-# DEPRECATED ContentType "API v2 doesn't require it" #-}
 data ContentType
     = PageContent
     | BlogpostContent
@@ -95,7 +96,7 @@ instance ToText ContentType where
 instance ToJSON ContentType where
     toJSON = toJSONViaText
 
-data ContentStatus
+data PageStatus
     = CurrentStatus
     | DeletedStatus
     | TrashedStatus
@@ -103,7 +104,7 @@ data ContentStatus
     | DraftStatus
     deriving (Eq, Show)
 
-instance FromText ContentStatus where
+instance FromText PageStatus where
     fromText "current" = Just CurrentStatus
     fromText "deleted" = Just DeletedStatus
     fromText "trashed" = Just TrashedStatus
@@ -111,17 +112,17 @@ instance FromText ContentStatus where
     fromText "draft" = Just DraftStatus
     fromText _ = Nothing
 
-instance FromJSON ContentStatus where
-    parseJSON = parseJSONViaText "ContentStatus"
+instance FromJSON PageStatus where
+    parseJSON = parseJSONViaText "PageStatus"
 
-instance ToText ContentStatus where
+instance ToText PageStatus where
     toText CurrentStatus = "current"
     toText DeletedStatus = "deleted"
     toText TrashedStatus = "trashed"
     toText HistoricalStatus = "historical"
     toText DraftStatus = "draft"
 
-instance ToJSON ContentStatus where
+instance ToJSON PageStatus where
     toJSON = toJSONViaText
 
 -- Leaving out "_expandable" field as not needed yet.

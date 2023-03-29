@@ -4,7 +4,7 @@ module Confluence.Types.ContentCreate (
     ContentBodyCreate (..),
 ) where
 
-import Confluence.Types.Content (ContentRepresentation)
+import Confluence.Types.Page (ContentRepresentation)
 import Data.Aeson (ToJSON)
 import Data.Text (Text)
 import GHC.Generics (Generic)

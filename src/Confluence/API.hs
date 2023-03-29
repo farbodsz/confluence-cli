@@ -1,13 +1,14 @@
 --------------------------------------------------------------------------------
 
+-- | Commands for dealing with objects in Confluence.
 module Confluence.API (
-    -- * Content
-    createContent,
-    deleteContent,
-    getContentById,
-    getContentByTitle,
-    getContents,
-    updateContent,
+    -- * Page
+    createPage,
+    deletePage,
+    getPageById,
+    getPageByTitle,
+    getPages,
+    updatePage,
 
     -- * Spaces
     getSpaces,
@@ -22,21 +23,21 @@ import Data.Aeson (Value, object, (.=))
 import Data.Aeson.Key qualified as AesonKey
 import Data.Text qualified as T
 import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
-import Prelude hiding (getContents, id)
+import Prelude hiding (id)
 
 --------------------------------------------------------------------------------
--- Content
+-- Page
 
 -- | Creates a page.
-createContent ::
+createPage ::
     SpaceKey ->
     T.Text ->
     ContentRepresentation ->
-    ContentStatus ->
+    PageStatus ->
     ContentType ->
     T.Text ->
     ConfluenceM ()
-createContent key title repr status ty body =
+createPage key title repr status ty body =
     postApi
         "content"
         $ object
@@ -54,17 +55,17 @@ mkBodyObject repr body =
         [ AesonKey.fromText (toText repr) .= ContentBodyCreate body repr
         ]
 
-deleteContent :: ContentId -> Bool -> ConfluenceM ()
-deleteContent id purge =
+deletePage :: PageId -> Bool -> ConfluenceM ()
+deletePage id purge =
     deleteApi
         ("content/" <> T.unpack id)
         [("status", toQueryValue (toText TrashedStatus)) | purge]
 
 -- | Returns a list of pages filtered by the space key and title, if given.
 -- Title filter uses exact match and is case sensitive.
-getContents ::
+getPages ::
     Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> ConfluenceM ContentArray
-getContents m_key m_title start limit =
+getPages m_key m_title start limit =
     getApi
         "content"
         [ ("spaceKey", toQueryValue m_key)
@@ -74,24 +75,24 @@ getContents m_key m_title start limit =
         , ("expand", toQueryValue @[T.Text] ["space", "version"])
         ]
 
-getContentById :: ContentId -> ConfluenceM (Maybe Content)
-getContentById id = getApi ("content/" <> T.unpack id) []
+getPageById :: PageId -> ConfluenceM (Maybe Content)
+getPageById id = getApi ("content/" <> T.unpack id) []
 
-getContentByTitle :: SpaceKey -> T.Text -> ConfluenceM (Maybe Content)
-getContentByTitle key title = do
-    contentArray <- getContents (Just key) (Just title) 0 1
+getPageByTitle :: SpaceKey -> T.Text -> ConfluenceM (Maybe Content)
+getPageByTitle key title = do
+    contentArray <- getPages (Just key) (Just title) 0 1
     pure $ headMaybe contentArray.results
 
-updateContent ::
-    ContentId ->
+updatePage ::
+    PageId ->
     Int ->
     T.Text ->
     ContentType ->
-    Maybe ContentStatus ->
+    Maybe PageStatus ->
     ContentRepresentation ->
     Maybe T.Text ->
     ConfluenceM ()
-updateContent id new_version new_title new_ty new_status new_repr new_body =
+updatePage id new_version new_title new_ty new_status new_repr new_body =
     putApi ("content/" <> T.unpack id) $
         object $ case new_body of
             Nothing ->
