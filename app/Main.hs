@@ -25,34 +25,32 @@ configErrMsg (NoConfigFoundErr path) =
 configErrMsg (InvalidConfigErr contents) = "Invalid config file:\n" <> contents
 
 runCommand :: Config -> ConfluenceCmd -> IO ()
-runCommand cfg (ContentBodyCommand opts) =
-    CLI.getContentBody cfg opts.space opts.title
-runCommand cfg (ContentCreateCommand opts) =
-    CLI.createContent
+runCommand cfg (PageBodyCommand opts) =
+    CLI.getPageBody cfg opts.space opts.title
+runCommand cfg (PageCreateCommand opts) =
+    CLI.createPage
         cfg
         opts.space
         opts.title
         opts.representation
         opts.status
-        opts.contentType
         opts.filePath
-runCommand cfg (ContentDeleteCommand opts) =
-    CLI.deleteContent cfg opts.id opts.purge
-runCommand cfg (ContentInfoCommand opts) =
-    CLI.getContentInfo cfg opts.ident
-runCommand cfg (ContentListCommand opts) =
-    CLI.listContent
+runCommand cfg (PageDeleteCommand opts) =
+    CLI.deletePage cfg opts.id opts.purge
+runCommand cfg (PageGetCommand opts) =
+    CLI.getPage cfg opts.ident
+runCommand cfg (PageListCommand opts) =
+    CLI.listPages
         cfg
         opts.space
         opts.title
         opts.start
         opts.limit
-runCommand cfg (ContentUpdateCommand opts) =
-    CLI.updateContent
+runCommand cfg (PageUpdateCommand opts) =
+    CLI.updatePage
         cfg
         opts.id
         opts.newTitle
-        opts.newType
         opts.newStatus
         opts.newRepresentation
         opts.newBodyFilePath

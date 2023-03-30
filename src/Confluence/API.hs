@@ -27,7 +27,7 @@ import Prelude hiding (getContents, id)
 --------------------------------------------------------------------------------
 -- Content
 
--- | Creates a page.
+-- | Creates content.
 createContent ::
     SpaceKey ->
     T.Text ->
