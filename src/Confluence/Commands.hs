@@ -6,6 +6,7 @@ module Confluence.Commands (
     ConfluenceCmd (..),
 
     -- * Page command options
+    PageBodyOpts (..),
     PageCreateOpts (..),
     PageDeleteOpts (..),
     PageGetOpts (..),
@@ -27,7 +28,8 @@ import Paths_confluence_cli (version)
 -- Root
 
 data ConfluenceCmd
-    = PageCreateCommand PageCreateOpts
+    = PageBodyCommand PageBodyOpts
+    | PageCreateCommand PageCreateOpts
     | PageDeleteCommand PageDeleteOpts
     | PageGetCommand PageGetOpts
     | PageListCommand PageListOpts
@@ -57,10 +59,21 @@ pageP :: Parser ConfluenceCmd
 pageP =
     hsubparser $
         command "add" (info pageCreateP $ progDesc "Create page")
+            <> command "body" (info pageBodyP $ progDesc "Get content body")
             <> command "get" (info pageGetP $ progDesc "Get page")
             <> command "list" (info pageListP $ progDesc "List pages")
             <> command "rm" (info pageDeleteP $ progDesc "Delete page")
             <> command "update" (info pageUpdateP $ progDesc "Update page")
+
+data PageBodyOpts = PageBodyOpts
+    { space :: SpaceKey
+    , title :: T.Text
+    }
+    deriving (Eq)
+
+pageBodyP :: Parser ConfluenceCmd
+pageBodyP =
+    fmap PageBodyCommand $ PageBodyOpts <$> optSpaceKeyP <*> optContentTitleP
 
 data PageCreateOpts = PageCreateOpts
     { space :: SpaceKey

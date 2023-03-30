@@ -50,9 +50,7 @@ createContent key title repr status ty body =
 
 mkBodyObject :: ContentRepresentation -> T.Text -> Value
 mkBodyObject repr body =
-    object
-        [ AesonKey.fromText (toText repr) .= ContentBodyCreate body repr
-        ]
+    object [AesonKey.fromText (toText repr) .= ContentBody body repr]
 
 deleteContent :: ContentId -> Bool -> ConfluenceM ()
 deleteContent id purge =
@@ -71,11 +69,17 @@ getContents m_key m_title start limit =
         , ("title", toQueryValue m_title)
         , ("start", toQueryValue start)
         , ("limit", toQueryValue limit)
-        , ("expand", toQueryValue @[T.Text] ["space", "version"])
+        , ("expand", toQueryValue contentExpandableParams)
         ]
 
+contentExpandableParams :: [T.Text]
+contentExpandableParams = ["space", "body.storage", "version"]
+
 getContentById :: ContentId -> ConfluenceM (Maybe Content)
-getContentById id = getApi ("content/" <> T.unpack id) []
+getContentById id =
+    getApi
+        ("content/" <> T.unpack id)
+        [("expand", toQueryValue contentExpandableParams)]
 
 getContentByTitle :: SpaceKey -> T.Text -> ConfluenceM (Maybe Content)
 getContentByTitle key title = do

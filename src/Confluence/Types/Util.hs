@@ -2,10 +2,14 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 -- | Internal utility functions.
-module Confluence.Types.Util (genericParseJSONWithRename) where
+module Confluence.Types.Util (
+    genericParseJSONWithRename,
+    snakeToCamel,
+) where
 
 import Data.Aeson (Options (..), Value, Zero, defaultOptions, genericParseJSON)
 import Data.Aeson.Types (GFromJSON, Parser)
+import Data.Char (toUpper)
 import GHC.Generics (Generic, Rep)
 
 --------------------------------------------------------------------------------
@@ -23,5 +27,17 @@ renameField :: String -> String -> String -> String
 renameField old new x
     | old == x = new
     | otherwise = x
+
+snakeToCamel :: String -> String
+snakeToCamel [] = []
+snakeToCamel (s : ss)
+    | s == '_' = s : snakeToCamel ss
+    | otherwise = go (s : ss)
+  where
+    go [] = []
+    go [x] = [x]
+    go (x1 : x2 : xs)
+        | x1 == '_' = toUpper x2 : go xs
+        | otherwise = x1 : go (x2 : xs)
 
 --------------------------------------------------------------------------------

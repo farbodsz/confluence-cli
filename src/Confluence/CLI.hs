@@ -5,6 +5,7 @@ module Confluence.CLI (
     createPage,
     deletePage,
     getPage,
+    getPageBody,
     listPages,
     updatePage,
 
@@ -24,7 +25,11 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Maybe (fromMaybe)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
-import Data.Time (ZonedTime (zonedTimeToLocalTime), defaultTimeLocale, formatTime)
+import Data.Time (
+    ZonedTime (zonedTimeToLocalTime),
+    defaultTimeLocale,
+    formatTime,
+ )
 import System.IO (hFlush, stdout)
 import Prelude hiding (id)
 
@@ -102,6 +107,18 @@ getPage cfg ident = do
         T.pack
             . formatTime defaultTimeLocale "%d %b %Y at %R"
             . zonedTimeToLocalTime
+
+-- | Outputs the content body in storage representation.
+getPageBody :: Config -> SpaceKey -> T.Text -> IO ()
+getPageBody cfg key title = do
+    result <- runConfluence cfg $ API.getContentByTitle key title
+
+    let errTxt x = T.concat ["No ", x, " found: '", key, "' -> '", title, "'"]
+    withEither result $ \case
+        Nothing -> T.putStrLn $ errTxt "content"
+        Just content -> case content.body.storage of
+            Nothing -> T.putStrLn $ errTxt "content body (storage)"
+            Just storage -> T.putStrLn storage.value
 
 -- | Lists the pages satisfying the given filters.
 listPages :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()
