@@ -7,6 +7,7 @@ module Confluence.CLI (
     getPage,
     getPageBody,
     listPages,
+    listPageChildren,
     updatePage,
 
     -- * Spaces
@@ -120,20 +121,38 @@ getPageBody cfg key title = do
             Nothing -> T.putStrLn $ errTxt "content body (storage)"
             Just storage -> T.putStrLn storage.value
 
+-- | Lists the direct child pages of the specified page.
+listPageChildren :: Config -> ContentIdentification -> IO ()
+listPageChildren cfg ident = do
+    mContentId <- case ident of
+        ContentId id -> pure . pure $ Just id
+        ContentName key title ->
+            runConfluence cfg $ fmap (.id) <$> API.getContentByTitle key title
+    withEither mContentId $ \case
+        Nothing -> T.putStrLn "No page found matching given key/title"
+        Just id -> do
+            result <- runConfluence cfg $ API.getContentChildren id
+            withEither result $ \contentChildren ->
+                printPages contentChildren.page.results
+
 -- | Lists the pages satisfying the given filters.
 listPages :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()
 listPages cfg m_key m_title start limit = do
     result <- runConfluence cfg $ API.getContents m_key m_title start limit
-    withEither result $ \contentArray ->
-        let pages = contentArray.results
-            getSpaceKey = (.key) <$> (.space)
-         in printTable $
-                defaultTable
-                    [ "ID" : toTextF ((.id) <$> pages)
-                    , "STATUS" : toTextF ((.status) <$> pages)
-                    , "SPACE" : toTextF (getSpaceKey <$> pages)
-                    , "TITLE" : toTextF ((.title) <$> pages)
-                    ]
+    withEither result $ \contentArray -> printPages contentArray.results
+
+-- | Prints a table of pages.
+printPages :: [Content] -> IO ()
+printPages pages =
+    printTable $
+        defaultTable
+            [ "ID" : toTextF ((.id) <$> pages)
+            , "STATUS" : toTextF ((.status) <$> pages)
+            , "SPACE" : toTextF (getSpaceKey <$> pages)
+            , "TITLE" : toTextF ((.title) <$> pages)
+            ]
+  where
+    getSpaceKey = (.key) <$> (.space)
 
 -- | Updates some metadata or body of the page with the given ID.
 updatePage ::

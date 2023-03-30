@@ -7,6 +7,7 @@ module Confluence.Commands (
 
     -- * Page command options
     PageBodyOpts (..),
+    PageChildrenOpts (..),
     PageCreateOpts (..),
     PageDeleteOpts (..),
     PageGetOpts (..),
@@ -29,6 +30,7 @@ import Paths_confluence_cli (version)
 
 data ConfluenceCmd
     = PageBodyCommand PageBodyOpts
+    | PageChildrenCommand PageChildrenOpts
     | PageCreateCommand PageCreateOpts
     | PageDeleteCommand PageDeleteOpts
     | PageGetCommand PageGetOpts
@@ -58,12 +60,25 @@ confluenceP =
 pageP :: Parser ConfluenceCmd
 pageP =
     hsubparser $
-        command "add" (info pageCreateP $ progDesc "Create page")
-            <> command "body" (info pageBodyP $ progDesc "Get content body")
-            <> command "get" (info pageGetP $ progDesc "Get page")
+        command "add" (info pageCreateP $ progDesc "Create a new page")
+            <> command
+                "body"
+                ( info pageBodyP $
+                    progDesc "Get the body of a page in storage represntation format"
+                )
+            <> command
+                "children"
+                ( info pageChildrenP $
+                    progDesc "Get the direct children for a page"
+                )
+            <> command
+                "get"
+                ( info pageGetP $
+                    progDesc "Get properties of an existing page"
+                )
             <> command "list" (info pageListP $ progDesc "List pages")
-            <> command "rm" (info pageDeleteP $ progDesc "Delete page")
-            <> command "update" (info pageUpdateP $ progDesc "Update page")
+            <> command "rm" (info pageDeleteP $ progDesc "Delete a page")
+            <> command "update" (info pageUpdateP $ progDesc "Update a page")
 
 data PageBodyOpts = PageBodyOpts
     { space :: SpaceKey
@@ -74,6 +89,12 @@ data PageBodyOpts = PageBodyOpts
 pageBodyP :: Parser ConfluenceCmd
 pageBodyP =
     fmap PageBodyCommand $ PageBodyOpts <$> optSpaceKeyP <*> optContentTitleP
+
+data PageChildrenOpts = PageChildrenOpts {ident :: ContentIdentification}
+    deriving (Eq)
+
+pageChildrenP :: Parser ConfluenceCmd
+pageChildrenP = fmap PageChildrenCommand $ PageChildrenOpts <$> argContentIdentificationP
 
 data PageCreateOpts = PageCreateOpts
     { space :: SpaceKey
@@ -109,12 +130,7 @@ data PageGetOpts = PageGetOpts {ident :: ContentIdentification}
     deriving (Eq)
 
 pageGetP :: Parser ConfluenceCmd
-pageGetP =
-    fmap PageGetCommand $
-        PageGetOpts <$> (contentIdP <|> contentNameP)
-  where
-    contentIdP = ContentId <$> optContentIdP
-    contentNameP = ContentName <$> argSpaceKeyP <*> argContentTitleP
+pageGetP = fmap PageGetCommand $ PageGetOpts <$> argContentIdentificationP
 
 data PageListOpts = PageListOpts
     { space :: Maybe SpaceKey
@@ -164,6 +180,13 @@ argSpaceKeyP =
 
 argContentTitleP :: Parser T.Text
 argContentTitleP = strArgument (help "Content title" <> metavar "TITLE")
+
+-- | Content ID or name.
+argContentIdentificationP :: Parser ContentIdentification
+argContentIdentificationP = contentIdP <|> contentNameP
+  where
+    contentIdP = ContentId <$> optContentIdP
+    contentNameP = ContentName <$> argSpaceKeyP <*> argContentTitleP
 
 --------------------------------------------------------------------------------
 -- Content options

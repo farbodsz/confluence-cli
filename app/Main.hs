@@ -27,6 +27,8 @@ configErrMsg (InvalidConfigErr contents) = "Invalid config file:\n" <> contents
 runCommand :: Config -> ConfluenceCmd -> IO ()
 runCommand cfg (PageBodyCommand opts) =
     CLI.getPageBody cfg opts.space opts.title
+runCommand cfg (PageChildrenCommand opts) =
+    CLI.listPageChildren cfg opts.ident
 runCommand cfg (PageCreateCommand opts) =
     CLI.createPage
         cfg

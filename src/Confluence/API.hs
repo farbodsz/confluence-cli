@@ -7,6 +7,7 @@ module Confluence.API (
     getContentById,
     getContentByTitle,
     getContents,
+    getContentChildren,
     updateContent,
 
     -- * Spaces
@@ -72,6 +73,7 @@ getContents m_key m_title start limit =
         , ("expand", toQueryValue contentExpandableParams)
         ]
 
+-- | Fields to expand when retrieving 'Content'.
 contentExpandableParams :: [T.Text]
 contentExpandableParams = ["space", "body.storage", "version"]
 
@@ -85,6 +87,18 @@ getContentByTitle :: SpaceKey -> T.Text -> ConfluenceM (Maybe Content)
 getContentByTitle key title = do
     contentArray <- getContents (Just key) (Just title) 0 1
     pure $ headMaybe contentArray.results
+
+getContentChildren :: ContentId -> ConfluenceM ContentChildren
+getContentChildren id =
+    getApi
+        ("content/" <> T.unpack id <> "/child")
+        [("expand", toQueryValue expandableParams)]
+  where
+    expandableParams =
+        [ contentType <> "." <> contentParam
+        | contentType <- ["page", "comment", "attachment"]
+        , contentParam <- contentExpandableParams
+        ]
 
 updateContent ::
     ContentId ->

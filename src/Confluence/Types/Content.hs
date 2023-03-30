@@ -1,15 +1,25 @@
 --------------------------------------------------------------------------------
 
 module Confluence.Types.Content (
-    ContentArray,
+    -- * Core content types
     Content (..),
     ContentId,
-    ContentIdentification (..),
     ContentType (..),
     ContentStatus (..),
+
+    -- * Identifying content
+    ContentIdentification (..),
+
+    -- * Content body and representation
     ContentBodyContainer (..),
     ContentBody (..),
     ContentRepresentation (..),
+
+    -- * Content chidlren
+    ContentChildren (..),
+
+    -- * Misc
+    ContentArray,
 ) where
 
 import Confluence.TextConversions
@@ -18,7 +28,14 @@ import Confluence.Types.Result (ResultArray)
 import Confluence.Types.Space (Space, SpaceKey)
 import Confluence.Types.Util qualified as Util
 import Confluence.Types.Version (Version)
-import Data.Aeson (FromJSON (parseJSON), Object, Options (..), ToJSON (toJSON), defaultOptions, genericParseJSON)
+import Data.Aeson (
+    FromJSON (parseJSON),
+    Object,
+    Options (..),
+    ToJSON (toJSON),
+    defaultOptions,
+    genericParseJSON,
+ )
 import Data.Text (Text)
 import GHC.Generics (Generic)
 
@@ -36,11 +53,8 @@ type ContentId = Text
 -- call.
 --
 --   * history
---   * version
 --   * ancestors
 --   * operations
---   * children
---   * childTypes
 --   * descendants
 --   * container
 --   * restrictions
@@ -124,6 +138,8 @@ instance ToText ContentStatus where
 instance ToJSON ContentStatus where
     toJSON = toJSONViaText
 
+--------------------------------------------------------------------------------
+
 -- Leaving out "_expandable" field as not needed yet.
 data ContentBodyContainer = ContentBodyContainer
     { view :: Maybe ContentBody
@@ -196,5 +212,16 @@ instance ToText ContentRepresentation where
 
 instance ToJSON ContentRepresentation where
     toJSON = toJSONViaText
+
+--------------------------------------------------------------------------------
+
+data ContentChildren = ContentChildren
+    { attachment :: ContentArray
+    , comment :: ContentArray
+    , page :: ContentArray
+    }
+    deriving (Generic, Show)
+
+instance FromJSON ContentChildren
 
 --------------------------------------------------------------------------------
