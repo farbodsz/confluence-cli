@@ -9,7 +9,7 @@ module Confluence.CLI (
     updateContent,
 
     -- * Spaces
-    getSpaces,
+    listSpaces,
 ) where
 
 import Confluence.API qualified as API
@@ -165,10 +165,8 @@ updateContent cfg id new_title new_ty new_status new_repr m_path = do
 --------------------------------------------------------------------------------
 -- Spaces
 
--- TODO: support more options:
--- https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-space/#api-wiki-rest-api-space-get
-getSpaces :: Config -> Int -> Int -> Maybe SpaceType -> IO ()
-getSpaces cfg start limit ty = do
+listSpaces :: Config -> Int -> Int -> Maybe SpaceType -> IO ()
+listSpaces cfg start limit ty = do
     result <- runConfluence cfg $ API.getSpaces start limit ty
     withEither result printSpaces
 
@@ -181,6 +179,7 @@ printSpaces arr =
                 , "NAME" : ((.name) <$> spaces)
                 , "KEY" : ((.key) <$> spaces)
                 , "TYPE" : (toText . (.spaceType) <$> spaces)
+                , "STATUS" : (toText . (.status) <$> spaces)
                 ]
 
 --------------------------------------------------------------------------------

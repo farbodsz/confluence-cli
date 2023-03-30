@@ -8,12 +8,10 @@ module Confluence.Types.Space (
 ) where
 
 import Confluence.TextConversions
-import Confluence.Types.Common
 import Confluence.Types.Result (ResultArray)
 import Confluence.Types.Util qualified as Util
-import Data.Aeson (FromJSON (parseJSON), Object, withText)
+import Data.Aeson (FromJSON (parseJSON), withText)
 import Data.Text (Text)
-import Data.Text qualified as T
 import Data.Text.Encoding qualified as T
 import GHC.Generics (Generic)
 import Network.HTTP.Types.QueryLike (QueryValueLike (toQueryValue))
@@ -24,26 +22,12 @@ type SpaceArray = ResultArray Space
 
 --------------------------------------------------------------------------------
 
--- We leave out these fields from Space, as we don't care about them:
---
---   * description
---   * icon
---   * homepage
---   * metadata
---   * operations
---   * permissions
---   * settings
---   * theme
---   * lookAndFeel
---   * history
---
 data Space = Space
     { id :: Int
     , key :: SpaceKey
     , name :: Text
     , spaceType :: SpaceType
-    , _links :: GenericLinks
-    , _expandable :: Object
+    , status :: Text
     }
     deriving (Generic, Show)
 
@@ -72,40 +56,5 @@ instance FromJSON SpaceType where
 
 instance QueryValueLike SpaceType where
     toQueryValue = Just . T.encodeUtf8 . toText
-
-data SpaceDescriptions = SpaceDescriptions
-    { plain :: SpaceDescription
-    , view :: SpaceDescription
-    , _expandable :: DescriptionExpandable
-    }
-    deriving (Generic, Show)
-
-instance FromJSON SpaceDescriptions
-
-data SpaceDescription = SpaceDescription
-    { value :: Text
-    , representation :: SpaceRepresentation
-    , embeddedContent :: [Object]
-    }
-    deriving (Generic, Show)
-
-instance FromJSON SpaceDescription
-
-data SpaceRepresentation = PlainRepresentation | ViewRepresentation
-    deriving (Eq, Show)
-
-instance FromJSON SpaceRepresentation where
-    parseJSON = withText "SpaceRepresentation" $ \case
-        "plain" -> pure PlainRepresentation
-        "view" -> pure ViewRepresentation
-        t -> fail $ "Invalid representation '" <> T.unpack t <> "'"
-
-data DescriptionExpandable = DescriptionExpandable
-    { view :: Text
-    , plain :: Text
-    }
-    deriving (Generic, Show)
-
-instance FromJSON DescriptionExpandable
 
 --------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 --------------------------------------------------------------------------------
 
 module Confluence.Types (
+    module Confluence.Types.Body,
     module Confluence.Types.Common,
     module Confluence.Types.Content,
     module Confluence.Types.ContentCreate,
@@ -10,6 +11,7 @@ module Confluence.Types (
     module Confluence.Types.Version,
 ) where
 
+import Confluence.Types.Body
 import Confluence.Types.Common
 import Confluence.Types.Content
 import Confluence.Types.ContentCreate

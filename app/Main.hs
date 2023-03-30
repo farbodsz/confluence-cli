@@ -55,6 +55,6 @@ runCommand cfg (ContentUpdateCommand opts) =
         opts.newRepresentation
         opts.newBodyFilePath
 runCommand cfg (SpacesListCommand opts) =
-    CLI.getSpaces cfg opts.start opts.limit opts.spaceType
+    CLI.listSpaces cfg opts.start opts.limit opts.spaceType
 
 --------------------------------------------------------------------------------

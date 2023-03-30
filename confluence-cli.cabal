@@ -36,6 +36,7 @@ library
       Confluence.Table
       Confluence.TextConversions
       Confluence.Types
+      Confluence.Types.Body
       Confluence.Types.Common
       Confluence.Types.Content
       Confluence.Types.ContentCreate
