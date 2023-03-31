@@ -1,14 +1,11 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types.Content (
+module Confluence.API.Types.Content (
     -- * Core content types
     Content (..),
     ContentId,
     ContentType (..),
     ContentStatus (..),
-
-    -- * Identifying content
-    ContentIdentification (..),
 
     -- * Content body and representation
     ContentBodyContainer (..),
@@ -22,12 +19,12 @@ module Confluence.Types.Content (
     ContentArray,
 ) where
 
+import Confluence.API.Types.Common (GenericLinks)
+import Confluence.API.Types.Result (ResultArray)
+import Confluence.API.Types.Space (Space)
+import Confluence.API.Types.Util qualified as Util
+import Confluence.API.Types.Version (Version)
 import Confluence.TextConversions
-import Confluence.Types.Common (GenericLinks)
-import Confluence.Types.Result (ResultArray)
-import Confluence.Types.Space (Space, SpaceKey)
-import Confluence.Types.Util qualified as Util
-import Confluence.Types.Version (Version)
 import Data.Aeson (
     FromJSON (parseJSON),
     Object,
@@ -77,11 +74,6 @@ data Content = Content
 
 instance FromJSON Content where
     parseJSON = Util.genericParseJSONWithRename "contentType" "type"
-
--- | Content on Confluence can be identified either by an integer ID, or by the
--- space key and content title.
-data ContentIdentification = ContentId ContentId | ContentName SpaceKey Text
-    deriving (Eq)
 
 data ContentType
     = PageContent

@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 -- | Internal utility functions.
-module Confluence.Types.Util (
+module Confluence.API.Types.Util (
     genericParseJSONWithRename,
     snakeToCamel,
 ) where

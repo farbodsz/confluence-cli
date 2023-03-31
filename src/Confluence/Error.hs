@@ -5,7 +5,7 @@ module Confluence.Error (
     errorMsg,
 ) where
 
-import Confluence.Types (ApiError (..))
+import Confluence.API.Types (ApiError (..))
 import Data.ByteString.Lazy qualified as LB
 import Data.Text qualified as T
 import Data.Text.Encoding qualified as TE

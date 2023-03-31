@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types.Common (GenericLinks) where
+module Confluence.API.Types.Common (GenericLinks) where
 
 import Data.Aeson (Object)
 

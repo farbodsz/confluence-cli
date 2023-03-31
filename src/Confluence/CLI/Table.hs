@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------------------
 {-# LANGUAGE GADTs #-}
 
-module Confluence.Table (
+module Confluence.CLI.Table (
     ColMeta (..),
     Width (..),
     Alignment (..),

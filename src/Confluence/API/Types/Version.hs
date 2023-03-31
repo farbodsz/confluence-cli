@@ -1,8 +1,8 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types.Version (Version (..)) where
+module Confluence.API.Types.Version (Version (..)) where
 
-import Confluence.Types.User (User)
+import Confluence.API.Types.User (User)
 import Data.Aeson (FromJSON)
 import Data.Text (Text)
 import Data.Time (ZonedTime)
