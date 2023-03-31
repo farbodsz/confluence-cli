@@ -19,12 +19,12 @@ module Confluence.API.Types.Content (
     ContentArray,
 ) where
 
-import Confluence.TextConversions
 import Confluence.API.Types.Common (GenericLinks)
 import Confluence.API.Types.Result (ResultArray)
 import Confluence.API.Types.Space (Space)
 import Confluence.API.Types.Util qualified as Util
 import Confluence.API.Types.Version (Version)
+import Confluence.TextConversions
 import Data.Aeson (
     FromJSON (parseJSON),
     Object,
