@@ -4,7 +4,7 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 -- | Orphan instances of library types.
-module Confluence.Types.Instances where
+module Confluence.API.Types.Instances where
 
 import Data.ByteString.Char8 qualified as B8
 import Data.Text qualified as T

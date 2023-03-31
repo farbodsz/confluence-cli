@@ -5,13 +5,13 @@ module Confluence.CLI.Space (
     getSpaces,
 ) where
 
-import Confluence.API qualified as API
+import Confluence.API.Endpoints qualified as API
+import Confluence.API.Types
 import Confluence.CLI.Table
 import Confluence.CLI.Util
 import Confluence.Config (Config)
 import Confluence.Monad (runConfluence)
 import Confluence.TextConversions (ToText (toText))
-import Confluence.Types
 
 --------------------------------------------------------------------------------
 

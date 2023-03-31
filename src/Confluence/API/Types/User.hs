@@ -1,13 +1,13 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types.User (
+module Confluence.API.Types.User (
     User (..),
     UserType (..),
 ) where
 
+import Confluence.API.Types.Common (GenericLinks)
+import Confluence.API.Types.Util qualified as Util
 import Confluence.TextConversions (FromText (..), parseJSONViaText)
-import Confluence.Types.Common (GenericLinks)
-import Confluence.Types.Util qualified as Util
 import Data.Aeson (FromJSON (parseJSON), Object)
 import Data.Text (Text)
 import GHC.Generics (Generic)

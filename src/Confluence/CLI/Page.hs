@@ -11,14 +11,14 @@ module Confluence.CLI.Page (
     updatePage,
 ) where
 
-import Confluence.API qualified as API
+import Confluence.API.Endpoints qualified as API
+import Confluence.API.Types
 import Confluence.CLI.Table
 import Confluence.CLI.Types
 import Confluence.CLI.Util
 import Confluence.Config (Config)
 import Confluence.Monad (runConfluence)
 import Confluence.TextConversions (ToText (toText))
-import Confluence.Types
 import Control.Monad.Extra (whenM)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Maybe (fromMaybe)

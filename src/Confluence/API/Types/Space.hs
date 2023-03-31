@@ -1,16 +1,16 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types.Space (
+module Confluence.API.Types.Space (
     Space (..),
     SpaceKey,
     SpaceType (..),
     SpaceArray,
 ) where
 
+import Confluence.API.Types.Common
+import Confluence.API.Types.Result (ResultArray)
+import Confluence.API.Types.Util qualified as Util
 import Confluence.TextConversions
-import Confluence.Types.Common
-import Confluence.Types.Result (ResultArray)
-import Confluence.Types.Util qualified as Util
 import Data.Aeson (FromJSON (parseJSON), Object, withText)
 import Data.Text (Text)
 import Data.Text qualified as T

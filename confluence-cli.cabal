@@ -26,8 +26,17 @@ source-repository head
 
 library
   exposed-modules:
-      Confluence.API
-      Confluence.API.Request
+      Confluence.API.Endpoints
+      Confluence.API.Internal
+      Confluence.API.Types
+      Confluence.API.Types.Common
+      Confluence.API.Types.Content
+      Confluence.API.Types.Instances
+      Confluence.API.Types.Result
+      Confluence.API.Types.Space
+      Confluence.API.Types.User
+      Confluence.API.Types.Util
+      Confluence.API.Types.Version
       Confluence.CLI
       Confluence.CLI.Page
       Confluence.CLI.Space
@@ -39,15 +48,6 @@ library
       Confluence.Error
       Confluence.Monad
       Confluence.TextConversions
-      Confluence.Types
-      Confluence.Types.Common
-      Confluence.Types.Content
-      Confluence.Types.Instances
-      Confluence.Types.Result
-      Confluence.Types.Space
-      Confluence.Types.User
-      Confluence.Types.Util
-      Confluence.Types.Version
       Confluence.Util
   other-modules:
       Paths_confluence_cli

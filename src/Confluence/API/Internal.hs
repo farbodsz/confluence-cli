@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 
-module Confluence.API.Request (
+module Confluence.API.Internal (
     getApi,
     deleteApi,
     postApi,

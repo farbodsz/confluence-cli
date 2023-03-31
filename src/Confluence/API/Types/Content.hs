@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types.Content (
+module Confluence.API.Types.Content (
     -- * Core content types
     Content (..),
     ContentId,
@@ -20,11 +20,11 @@ module Confluence.Types.Content (
 ) where
 
 import Confluence.TextConversions
-import Confluence.Types.Common (GenericLinks)
-import Confluence.Types.Result (ResultArray)
-import Confluence.Types.Space (Space)
-import Confluence.Types.Util qualified as Util
-import Confluence.Types.Version (Version)
+import Confluence.API.Types.Common (GenericLinks)
+import Confluence.API.Types.Result (ResultArray)
+import Confluence.API.Types.Space (Space)
+import Confluence.API.Types.Util qualified as Util
+import Confluence.API.Types.Version (Version)
 import Data.Aeson (
     FromJSON (parseJSON),
     Object,

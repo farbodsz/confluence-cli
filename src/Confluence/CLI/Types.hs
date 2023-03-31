@@ -5,7 +5,7 @@ module Confluence.CLI.Types (
     ContentIdentification (..),
 ) where
 
-import Confluence.Types (ContentId, SpaceKey)
+import Confluence.API.Types (ContentId, SpaceKey)
 import Data.Text (Text)
 
 --------------------------------------------------------------------------------

@@ -1,12 +1,12 @@
 --------------------------------------------------------------------------------
 
-module Confluence.Types.Result (
+module Confluence.API.Types.Result (
     ResultArray (..),
     ApiError (..),
 ) where
 
-import Confluence.Types.Common (GenericLinks)
-import Confluence.Types.Util (genericParseJSONWithRename)
+import Confluence.API.Types.Common (GenericLinks)
+import Confluence.API.Types.Util (genericParseJSONWithRename)
 import Data.Aeson (FromJSON (..), Object)
 import Data.Text (Text)
 import GHC.Generics (Generic)

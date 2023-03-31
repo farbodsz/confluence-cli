@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 
-module Confluence.API (
+module Confluence.API.Endpoints (
     -- * Content
     createContent,
     deleteContent,
@@ -14,10 +14,10 @@ module Confluence.API (
     getSpaces,
 ) where
 
-import Confluence.API.Request
+import Confluence.API.Internal
+import Confluence.API.Types
 import Confluence.Monad (ConfluenceM)
 import Confluence.TextConversions (toText)
-import Confluence.Types
 import Confluence.Util (headMaybe)
 import Data.Aeson (Value, object, (.=))
 import Data.Aeson.Key qualified as AesonKey
