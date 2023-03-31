@@ -18,6 +18,7 @@ module Confluence.Commands (
     SpacesListOpts (..),
 ) where
 
+import Confluence.CLI.Types (ContentIdentification (..))
 import Confluence.TextConversions (FromText (fromText), ToText (toText))
 import Confluence.Types
 import Data.Text qualified as T
