@@ -170,24 +170,17 @@ pageUpdateP =
             <*> optional optFilePathP
 
 --------------------------------------------------------------------------------
--- Content arguments
+-- Content ID
 
 argContentIdP :: Parser ContentId
 argContentIdP = strArgument (help "Content ID" <> metavar "ID")
-
-argSpaceKeyP :: Parser SpaceKey
-argSpaceKeyP =
-    strArgument (help "Space that the content belongs to" <> metavar "SPACE")
-
-argContentTitleP :: Parser T.Text
-argContentTitleP = strArgument (help "Content title" <> metavar "TITLE")
 
 -- | Content ID or name.
 argContentIdentificationP :: Parser ContentIdentification
 argContentIdentificationP = contentIdP <|> contentNameP
   where
     contentIdP = ContentId <$> optContentIdP
-    contentNameP = ContentName <$> argSpaceKeyP <*> argContentTitleP
+    contentNameP = ContentName <$> optSpaceKeyP <*> optContentTitleP
 
 --------------------------------------------------------------------------------
 -- Content options
