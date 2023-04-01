@@ -24,6 +24,7 @@ configErrMsg (NoConfigFoundErr path) =
     "Config file does not exist: " <> T.pack path
 configErrMsg (InvalidConfigErr contents) = "Invalid config file:\n" <> contents
 
+-- | Runs the provided command with the given configuration.
 runCommand :: Config -> ConfluenceCmd -> IO ()
 runCommand cfg (PageBodyCommand opts) =
     CLI.getPageBody cfg opts.space opts.title
@@ -56,6 +57,8 @@ runCommand cfg (PageUpdateCommand opts) =
         opts.newStatus
         opts.newRepresentation
         opts.newBodyFilePath
+runCommand cfg (SearchCommand opts) =
+    CLI.search cfg opts.cql opts.scope opts.start opts.limit
 runCommand cfg (SpacesListCommand opts) =
     CLI.getSpaces cfg opts.start opts.limit opts.spaceType
 

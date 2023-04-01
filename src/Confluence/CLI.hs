@@ -5,6 +5,9 @@ module Confluence.CLI (
     -- * Pages
     module Confluence.CLI.Page,
 
+    -- * Search
+    module Confluence.CLI.Search,
+
     -- * Spaces
     module Confluence.CLI.Space,
 
@@ -13,6 +16,7 @@ module Confluence.CLI (
 ) where
 
 import Confluence.CLI.Page
+import Confluence.CLI.Search
 import Confluence.CLI.Space
 import Confluence.CLI.Types (ContentIdentification (..))
 

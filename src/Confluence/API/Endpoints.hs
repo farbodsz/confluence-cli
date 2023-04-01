@@ -10,6 +10,10 @@ module Confluence.API.Endpoints (
     getContentChildren,
     updateContent,
 
+    -- * Search
+    searchContent,
+    searchUsers,
+
     -- * Spaces
     getSpaces,
 ) where
@@ -125,6 +129,34 @@ updateContent id new_version new_title new_ty new_status new_repr new_body =
                 , "status" .= new_status
                 , "body" .= mkBodyObject new_repr b
                 ]
+
+--------------------------------------------------------------------------------
+-- Search
+
+data SearchScope = SearchContent | SearchUsers
+    deriving (Eq)
+
+searchContent :: Cql -> Int -> Int -> ConfluenceM SearchPageResponseSearchResult
+searchContent = mkSearchQuery SearchContent
+
+searchUsers :: Cql -> Int -> Int -> ConfluenceM SearchPageResponseSearchResult
+searchUsers = mkSearchQuery SearchUsers
+
+mkSearchQuery ::
+    SearchScope ->
+    Cql ->
+    Int ->
+    Int ->
+    ConfluenceM SearchPageResponseSearchResult
+mkSearchQuery scope cql start limit =
+    getApi
+        endpoint
+        [ ("cql", toQueryValue $ cql.unCql)
+        , ("start", toQueryValue start)
+        , ("limit", toQueryValue limit)
+        ]
+  where
+    endpoint = if scope == SearchContent then "search" else "search/user"
 
 --------------------------------------------------------------------------------
 -- Spaces

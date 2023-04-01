@@ -33,12 +33,14 @@ library
       Confluence.API.Types.Content
       Confluence.API.Types.Instances
       Confluence.API.Types.Result
+      Confluence.API.Types.Search
       Confluence.API.Types.Space
       Confluence.API.Types.User
       Confluence.API.Types.Util
       Confluence.API.Types.Version
       Confluence.CLI
       Confluence.CLI.Page
+      Confluence.CLI.Search
       Confluence.CLI.Space
       Confluence.CLI.Table
       Confluence.CLI.Types

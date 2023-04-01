@@ -14,12 +14,15 @@ module Confluence.Commands (
     PageListOpts (..),
     PageUpdateOpts (..),
 
+    -- * Search command options
+    SearchOpts (..),
+
     -- * Spaces command options
     SpacesListOpts (..),
 ) where
 
 import Confluence.API.Types
-import Confluence.CLI.Types (ContentIdentification (..))
+import Confluence.CLI.Types (ContentIdentification (..), SearchScope (..))
 import Confluence.TextConversions (FromText (fromText), ToText (toText))
 import Data.Text qualified as T
 import Data.Version (showVersion)
@@ -37,6 +40,7 @@ data ConfluenceCmd
     | PageGetCommand PageGetOpts
     | PageListCommand PageListOpts
     | PageUpdateCommand PageUpdateOpts
+    | SearchCommand SearchOpts
     | SpacesListCommand SpacesListOpts
     deriving (Eq)
 
@@ -53,6 +57,7 @@ confluenceP :: Parser ConfluenceCmd
 confluenceP =
     hsubparser $
         command "page" (info pageP $ progDesc "Page")
+            <> command "search" (info searchP $ progDesc "Search")
             <> command "space" (info spacesP $ progDesc "Spaces")
 
 --------------------------------------------------------------------------------
@@ -235,6 +240,43 @@ flagContentPurgeP =
                 \ `trashed`, then set this flag to purge it from the trash and\
                 \ delete permanently. Comments or attachments are deleted\
                 \ permanently regardless of whether this flag is set."
+        )
+
+--------------------------------------------------------------------------------
+-- Search
+
+data SearchOpts = SearchOpts
+    { cql :: Cql
+    , scope :: SearchScope
+    , start :: Int
+    , limit :: Int
+    }
+    deriving (Eq)
+
+-- TODO: includeArchivedSpaces, etc.
+
+searchP :: Parser ConfluenceCmd
+searchP =
+    fmap SearchCommand $
+        SearchOpts <$> optCqlP <*> optSearchScopeP <*> optStartP <*> optLimitP
+
+optCqlP :: Parser Cql
+optCqlP =
+    Cql
+        <$> strArgument
+            ( metavar "QUERY"
+                <> help "Query string in CQL (Confluence Query Language)"
+            )
+
+optSearchScopeP :: Parser SearchScope
+optSearchScopeP =
+    option
+        typeReader
+        ( long "scope"
+            <> help "Whether to search on content or users."
+            <> metavar "STRING"
+            <> showDefaultWith (T.unpack . toText)
+            <> value SearchContent
         )
 
 --------------------------------------------------------------------------------
