@@ -73,7 +73,7 @@ data Content = Content
     deriving (Generic, Show)
 
 instance FromJSON Content where
-    parseJSON = Util.genericParseJSONWithRename "contentType" "type"
+    parseJSON = Util.genericParseJSONWithRename [("contentType", "type")]
 
 data ContentType
     = PageContent
