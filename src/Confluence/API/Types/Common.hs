@@ -2,10 +2,14 @@
 
 module Confluence.API.Types.Common (GenericLinks) where
 
-import Data.Aeson (Object)
+import Data.Map qualified as M
+import Data.Text (Text)
 
 --------------------------------------------------------------------------------
 
-type GenericLinks = Object
+type LinkType = Text
+type Url = Text
+
+type GenericLinks = M.Map LinkType Url
 
 --------------------------------------------------------------------------------

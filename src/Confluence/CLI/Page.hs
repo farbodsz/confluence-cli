@@ -19,8 +19,10 @@ import Confluence.CLI.Util
 import Confluence.Config (Config)
 import Confluence.Monad (runConfluence)
 import Confluence.TextConversions (ToText (toText))
+import Control.Monad (liftM2)
 import Control.Monad.Extra (whenM)
 import Control.Monad.IO.Class (MonadIO (liftIO))
+import Data.Map ((!?))
 import Data.Maybe (fromMaybe)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
@@ -83,6 +85,7 @@ getPage cfg ident = do
                         , "LAST MODIFIED BY"
                         , "LAST MODIFIED AT"
                         , "VERSION"
+                        , "WEB"
                         ]
                     ,
                         [ page.id
@@ -96,6 +99,7 @@ getPage cfg ident = do
                                 <> ")"
                         , fmtWhen page.version.when
                         , toText $ page.version.number
+                        , fmtWebLink page._links
                         ]
                     ]
   where
@@ -104,6 +108,10 @@ getPage cfg ident = do
         T.pack
             . formatTime defaultTimeLocale "%d %b %Y at %R"
             . zonedTimeToLocalTime
+
+    fmtWebLink :: GenericLinks -> T.Text
+    fmtWebLink links =
+        fromMaybe "" $ liftM2 (<>) (links !? "base") (links !? "webui")
 
 -- | Outputs the content body in storage representation.
 getPageBody :: Config -> SpaceKey -> T.Text -> IO ()
