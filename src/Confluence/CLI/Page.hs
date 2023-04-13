@@ -8,6 +8,7 @@ module Confluence.CLI.Page (
     getPageBody,
     listPages,
     listPageChildren,
+    openPage,
     updatePage,
 ) where
 
@@ -19,10 +20,8 @@ import Confluence.CLI.Util
 import Confluence.Config (Config)
 import Confluence.Monad (runConfluence)
 import Confluence.TextConversions (ToText (toText))
-import Control.Monad (liftM2)
-import Control.Monad.Extra (whenM)
+import Control.Monad.Extra (void, whenM)
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Data.Map ((!?))
 import Data.Maybe (fromMaybe)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
@@ -31,6 +30,7 @@ import Data.Time (
     defaultTimeLocale,
     formatTime,
  )
+import Web.Browser (openBrowser)
 import Prelude hiding (id)
 
 --------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ getPage cfg ident = do
                                 <> ")"
                         , fmtWhen page.version.when
                         , toText $ page.version.number
-                        , fmtWebLink page._links
+                        , fromMaybe "" (getWebLink page._links)
                         ]
                     ]
   where
@@ -108,10 +108,6 @@ getPage cfg ident = do
         T.pack
             . formatTime defaultTimeLocale "%d %b %Y at %R"
             . zonedTimeToLocalTime
-
-    fmtWebLink :: GenericLinks -> T.Text
-    fmtWebLink links =
-        fromMaybe "" $ liftM2 (<>) (links !? "base") (links !? "webui")
 
 -- | Outputs the content body in storage representation.
 getPageBody :: Config -> SpaceKey -> T.Text -> IO ()
@@ -144,6 +140,21 @@ listPages :: Config -> Maybe SpaceKey -> Maybe T.Text -> Int -> Int -> IO ()
 listPages cfg m_key m_title start limit = do
     result <- runConfluence cfg $ API.getContents m_key m_title start limit
     withEither result $ \contentArray -> printPages contentArray.results
+
+-- | Open a page in the user's preferred browser.
+openPage :: Config -> ContentIdentification -> IO ()
+openPage cfg ident = do
+    result <- runConfluence cfg $ case ident of
+        ContentId id -> API.getContentById id
+        ContentName key title -> API.getContentByTitle key title
+
+    withEither result $ \case
+        Nothing -> putStrLn "No page found"
+        Just page ->
+            let webLink = getWebLink page._links
+             in case webLink of
+                    Nothing -> putStrLn "This page has no web URL"
+                    Just url -> void $ openBrowser (T.unpack url)
 
 -- | Prints a table of pages.
 printPages :: [Content] -> IO ()

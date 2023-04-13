@@ -48,6 +48,8 @@ runCommand cfg (PageListCommand opts) =
         opts.title
         opts.start
         opts.limit
+runCommand cfg (PageOpenCommand opts) =
+    CLI.openPage cfg opts.ident
 runCommand cfg (PageUpdateCommand opts) =
     CLI.updatePage
         cfg

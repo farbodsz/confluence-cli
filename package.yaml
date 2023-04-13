@@ -22,6 +22,7 @@ dependencies:
   - http-conduit
   - http-types
   - mtl
+  - open-browser
   - optparse-applicative
   - text
   - time

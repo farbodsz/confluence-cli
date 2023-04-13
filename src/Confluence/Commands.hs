@@ -36,6 +36,7 @@ data ConfluenceCmd
     | PageDeleteCommand PageDeleteOpts
     | PageGetCommand PageGetOpts
     | PageListCommand PageListOpts
+    | PageOpenCommand PageGetOpts
     | PageUpdateCommand PageUpdateOpts
     | SpacesListCommand SpacesListOpts
     deriving (Eq)
@@ -78,6 +79,7 @@ pageP =
                     progDesc "Get properties of an existing page"
                 )
             <> command "list" (info pageListP $ progDesc "List pages")
+            <> command "open" (info pageOpenP $ progDesc "Open page in browser")
             <> command "rm" (info pageDeleteP $ progDesc "Delete a page")
             <> command "update" (info pageUpdateP $ progDesc "Update a page")
 
@@ -149,6 +151,10 @@ pageListP =
             <*> optional optContentTitleP
             <*> optStartP
             <*> optLimitP
+
+pageOpenP :: Parser ConfluenceCmd
+pageOpenP =
+    fmap PageOpenCommand $ PageGetOpts <$> argContentIdentificationP
 
 data PageUpdateOpts = PageUpdateOpts
     { id :: ContentId
