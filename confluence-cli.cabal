@@ -68,6 +68,7 @@ library
       aeson
     , base >=4.7 && <5
     , bytestring
+    , containers
     , directory
     , extra
     , filepath
@@ -102,6 +103,7 @@ executable confluence
     , base >=4.7 && <5
     , bytestring
     , confluence-cli
+    , containers
     , directory
     , extra
     , filepath
