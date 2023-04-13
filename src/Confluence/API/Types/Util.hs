@@ -7,6 +7,7 @@ module Confluence.API.Types.Util (
     snakeToCamel,
 ) where
 
+import Confluence.Util qualified as Util
 import Data.Aeson (Options (..), Value, Zero, defaultOptions, genericParseJSON)
 import Data.Aeson.Types (GFromJSON, Parser)
 import Data.Char (toUpper)
@@ -16,17 +17,12 @@ import GHC.Generics (Generic, Rep)
 
 genericParseJSONWithRename ::
     (Generic a, GFromJSON Zero (Rep a)) =>
-    String ->
-    String ->
+    [(String, String)] ->
     Value ->
     Parser a
-genericParseJSONWithRename old new =
-    genericParseJSON $ defaultOptions {fieldLabelModifier = renameField old new}
-
-renameField :: String -> String -> String -> String
-renameField old new x
-    | old == x = new
-    | otherwise = x
+genericParseJSONWithRename replacements =
+    genericParseJSON $
+        defaultOptions {fieldLabelModifier = Util.replaceAll replacements}
 
 snakeToCamel :: String -> String
 snakeToCamel [] = []

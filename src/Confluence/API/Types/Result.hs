@@ -37,6 +37,6 @@ data ApiError = ApiError
     deriving (Generic, Eq, Show)
 
 instance FromJSON ApiError where
-    parseJSON = genericParseJSONWithRename "_data" "data"
+    parseJSON = genericParseJSONWithRename [("_data", "data")]
 
 --------------------------------------------------------------------------------

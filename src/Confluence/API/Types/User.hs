@@ -42,7 +42,7 @@ data User = User
     deriving (Generic, Show)
 
 instance FromJSON User where
-    parseJSON = Util.genericParseJSONWithRename "userType" "type"
+    parseJSON = Util.genericParseJSONWithRename [("userType", "type")]
 
 data UserType
     = KnownUser

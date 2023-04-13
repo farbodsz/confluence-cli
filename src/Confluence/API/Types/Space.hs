@@ -48,7 +48,7 @@ data Space = Space
     deriving (Generic, Show)
 
 instance FromJSON Space where
-    parseJSON = Util.genericParseJSONWithRename "spaceType" "type"
+    parseJSON = Util.genericParseJSONWithRename [("spaceType", "type")]
 
 type SpaceKey = Text
 
