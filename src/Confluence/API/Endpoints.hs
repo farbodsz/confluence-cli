@@ -86,7 +86,10 @@ getContentById id =
 getContentByTitle :: SpaceKey -> T.Text -> ConfluenceM (Maybe Content)
 getContentByTitle key title = do
     contentArray <- getContents (Just key) (Just title) 0 1
-    pure $ headMaybe contentArray.results
+    let mTopResult = headMaybe contentArray.results
+    case mTopResult of
+        Nothing -> pure Nothing
+        Just topResult -> getContentById topResult.id
 
 getContentChildren :: ContentId -> ConfluenceM ContentChildren
 getContentChildren id =
