@@ -76,6 +76,7 @@ library
     , http-conduit
     , http-types
     , mtl
+    , open-browser
     , optparse-applicative
     , text
     , time
@@ -111,6 +112,7 @@ executable confluence
     , http-conduit
     , http-types
     , mtl
+    , open-browser
     , optparse-applicative
     , text
     , time
